@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} — VendorBridge{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'rfq:rfq_list' %}">RFQs</a></li>
+      <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+  </nav>
+  <h2 class="fw-bold mb-1">{{ title }}</h2>
+  <p class="text-muted mb-0">Fill in the details to initiate a procurement request</p>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+      {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  {{ formset.management_form }}
+
+  <div class="row g-4">
+    <!-- Left: Main Form -->
+    <div class="col-lg-8">
+
+      <!-- RFQ Details -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom fw-semibold py-3">
+          <i class="bi bi-file-earmark-text me-2 text-primary"></i>RFQ Details
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-medium">RFQ Title <span class="text-danger">*</span></label>
+              {{ form.title }}
+              {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors|join:", " }}</div>{% endif %}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-medium">Description</label>
+              {{ form.description }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Submission Deadline <span class="text-danger">*</span></label>
+              {{ form.deadline }}
+              {% if form.deadline.errors %}<div class="text-danger small mt-1">{{ form.deadline.errors|join:", " }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-medium">Status</label>
+              {{ form.status }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Items -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom fw-semibold py-3 d-flex justify-content-between align-items-center">
+          <div><i class="bi bi-list-ul me-2 text-primary"></i>Products / Services</div>
+          <button type="button" id="add-item-btn" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-plus me-1"></i> Add Item
+          </button>
+        </div>
+        <div class="card-body">
+          <div id="item-formset">
+            {% for item_form in formset %}
+            <div class="item-form border rounded-3 p-3 mb-3 position-relative" id="item-{{ forloop.counter0 }}">
+              {{ item_form.id }}
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fw-medium text-muted small">Item #{{ forloop.counter }}</span>
+                {% if forloop.counter > 1 %}
+                  <div class="form-check mb-0">
+                    {{ item_form.DELETE }}
+                    <label class="form-check-label text-danger small" for="{{ item_form.DELETE.id_for_label }}">
+                      <i class="bi bi-trash"></i> Remove
+                    </label>
+                  </div>
+                {% else %}
+                  <div class="d-none">{{ item_form.DELETE }}</div>
+                {% endif %}
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-medium small">Product / Service Name <span class="text-danger">*</span></label>
+                  {{ item_form.product_name }}
+                  {% if item_form.product_name.errors %}<div class="text-danger small">{{ item_form.product_name.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-medium small">Quantity <span class="text-danger">*</span></label>
+                  {{ item_form.quantity }}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-medium small">Unit</label>
+                  {{ item_form.unit }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-medium small">Description</label>
+                  {{ item_form.description }}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-medium small">Specifications</label>
+                  {{ item_form.specifications }}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Attachments -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom fw-semibold py-3">
+          <i class="bi bi-paperclip me-2 text-primary"></i>Attachments
+        </div>
+        <div class="card-body">
+          <input type="file" name="attachments" class="form-control" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg">
+          <div class="text-muted small mt-2">Accepted: PDF, DOC, XLS, Images. Multiple files allowed.</div>
+          {% if rfq %}
+            {% for attachment in rfq.attachments.all %}
+              <div class="d-flex align-items-center gap-2 mt-2">
+                <i class="bi bi-file-earmark text-primary"></i>
+                <a href="{{ attachment.file.url }}" target="_blank">{{ attachment.file.name|slice:"18:" }}</a>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: Actions -->
+    <div class="col-lg-4">
+      {% if rfq %}
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="text-muted small mb-1">RFQ Number</div>
+          <div class="font-monospace fw-bold text-primary fs-5">{{ rfq.rfq_number }}</div>
+          <hr>
+          <div class="text-muted small mb-1">Issue Date</div>
+          <div class="fw-medium">{{ rfq.issue_date|date:"d M Y" }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-check-lg me-2"></i>
+              {% if rfq %}Update RFQ{% else %}Create RFQ{% endif %}
+            </button>
+            <a href="{% url 'rfq:rfq_list' %}" class="btn btn-outline-secondary">
+              <i class="bi bi-x me-2"></i>Cancel
+            </a>
+          </div>
+          {% if rfq %}
+          <hr>
+          <a href="{% url 'rfq:assign_vendor' rfq.pk %}" class="btn btn-outline-info w-100">
+            <i class="bi bi-person-plus me-2"></i>Assign Vendors
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Hidden empty form for dynamic JS cloning -->
+<div id="empty-form-template" style="display:none;">
+  <div class="item-form border rounded-3 p-3 mb-3" id="item-__prefix__">
+    {{ formset.empty_form.id }}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="fw-medium text-muted small">New Item</span>
+      <div class="form-check mb-0">
+        {{ formset.empty_form.DELETE }}
+        <label class="form-check-label text-danger small">
+          <i class="bi bi-trash"></i> Remove
+        </label>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-medium small">Product / Service Name <span class="text-danger">*</span></label>
+        {{ formset.empty_form.product_name }}
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-medium small">Quantity <span class="text-danger">*</span></label>
+        {{ formset.empty_form.quantity }}
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-medium small">Unit</label>
+        {{ formset.empty_form.unit }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-medium small">Description</label>
+        {{ formset.empty_form.description }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-medium small">Specifications</label>
+        {{ formset.empty_form.specifications }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const addBtn = document.getElementById('add-item-btn');
+  const formset = document.getElementById('item-formset');
+  const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+  const template = document.getElementById('empty-form-template');
+
+  addBtn.addEventListener('click', function () {
+    let count = parseInt(totalForms.value);
+    let newForm = template.innerHTML.replace(/__prefix__/g, count);
+    formset.insertAdjacentHTML('beforeend', newForm);
+    totalForms.value = count + 1;
+  });
+})();
+</script>
+{% endblock %}
