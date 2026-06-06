@@ -9,9 +9,30 @@
     <h2 class="fw-bold mb-1">Invoices</h2>
     <p class="text-muted mb-0">Generate and track supplier invoices and payments</p>
   </div>
-  <a href="{% url 'procurement:generate_invoice' %}" class="btn btn-primary">
-    <i class="bi bi-plus-lg me-1"></i> Generate Invoice
-  </a>
+  <div class="d-flex gap-2">
+    {% if invoices %}
+    <div class="dropdown">
+      <button class="btn btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-file-pdf me-1"></i> Export PDF Reports
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+        <li>
+          <a class="dropdown-item py-2" href="{% url 'procurement:invoice_list_pdf' %}">
+            <i class="bi bi-list-task text-danger me-2"></i> Download Registry List PDF
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item py-2" href="{% url 'procurement:all_invoices_pdf' %}">
+            <i class="bi bi-file-earmark-pdf text-danger me-2"></i> Download All Invoices Details PDF
+          </a>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+    <a href="{% url 'procurement:generate_invoice' %}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-1"></i> Generate Invoice
+    </a>
+  </div>
 </div>
 
 <!-- Invoice Table Card -->

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoices List Report</title>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin-top: 3cm;
+            margin-bottom: 2.5cm;
+            margin-left: 1.5cm;
+            margin-right: 1.5cm;
+            @top-center {
+                content: element(header_content);
+            }
+            @bottom-center {
+                content: element(footer_content);
+            }
+        }
+        
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 10px;
+            color: #1e293b;
+        }
+
+        /* Running Header */
+        #header_content {
+            display: block;
+            position: running(header_content);
+            padding-bottom: 5px;
+            border-bottom: 2px solid #4f46e5;
+        }
+        
+        /* Running Footer */
+        #footer_content {
+            display: block;
+            position: running(footer_content);
+            padding-top: 5px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 8px;
+            color: #64748b;
+        }
+
+        .report-header {
+            width: 100%;
+            border: none;
+            margin-bottom: 25px;
+        }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .report-meta {
+            text-align: right;
+            color: #64748b;
+            font-size: 9px;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        .report-table th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: bold;
+            border: 1px solid #cbd5e1;
+            padding: 8px;
+            text-align: left;
+            font-size: 9px;
+            text-transform: uppercase;
+        }
+
+        .report-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px;
+            vertical-align: middle;
+        }
+
+        .status-paid {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .status-unpaid {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .status-other {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .summary-box {
+            text-align: right;
+            margin-top: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Running Header Content -->
+    <div id="header_content">
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="font-size: 14px; font-weight: bold; color: #0f172a;">VendorBridge ERP</td>
+                <td style="text-align: right; font-size: 9px; color: #64748b;">Financial & Procurement Reporting</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Running Footer Content -->
+    <div id="footer_content">
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="text-align: left;">Report Code: VB-INV-RPT-{% now "Ymd" %}</td>
+                <td style="text-align: right;">Page <pdf:pagenumber> of <pdf:pagecount></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Report Header Details -->
+    <table class="report-header">
+        <tr>
+            <td>
+                <span class="report-title">Procurement Invoices Registry</span><br>
+                <span style="color: #64748b;">Comprehensive list of all registered supplier invoices</span>
+            </td>
+            <td class="report-meta">
+                <strong>Generated On:</strong> {% now "d M Y H:i" %}<br>
+                <strong>Total Registry Count:</strong> {{ invoices.count }} records
+            </td>
+        </tr>
+    </table>
+
+    <!-- Table List -->
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th style="width: 15%;">Invoice No</th>
+                <th style="width: 15%;">PO Number</th>
+                <th style="width: 30%;">Supplier Vendor</th>
+                <th style="width: 15%;">Due Date</th>
+                <th style="width: 10%; text-align: center;">Status</th>
+                <th style="width: 15%; text-align: right;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td style="font-weight: bold; font-family: monospace;">{{ invoice.invoice_number }}</td>
+                <td style="color: #475569; font-family: monospace;">{{ invoice.purchase_order.po_number }}</td>
+                <td>
+                    <strong>{{ invoice.purchase_order.vendor.name }}</strong><br>
+                    <span style="color: #64748b; font-size: 8px;">{{ invoice.purchase_order.vendor.company_name }}</span>
+                </td>
+                <td style="color: #64748b;">{{ invoice.due_date|date:"d M Y" }}</td>
+                <td style="text-align: center;">
+                    {% if invoice.status|lower == 'paid' %}
+                        <span class="status-paid">Paid</span>
+                    {% elif invoice.status|lower == 'unpaid' %}
+                        <span class="status-unpaid">Unpaid</span>
+                    {% else %}
+                        <span class="status-other">{{ invoice.status }}</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: right; font-weight: bold;">₹{{ invoice.total_amount }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: #64748b; padding: 20px;">No invoices registered in the system.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totals summary -->
+    <div class="summary-box">
+        Total Combined Amount: <span style="color: #4f46e5; font-size: 14px;">₹{{ total_registry_sum }}</span>
+    </div>
+
+</body>
+</html>

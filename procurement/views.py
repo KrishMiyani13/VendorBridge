@@ -99,3 +99,37 @@ def generate_invoice_pdf(request, invoice_id):
     )
 
     return response
+
+
+# Invoices Summary List PDF
+
+def invoice_list_pdf(request):
+    invoices = Invoice.objects.all().order_by('-created_at')
+    total_registry_sum = sum(inv.total_amount for inv in invoices)
+
+    template = get_template('procurement/invoice_list_pdf.html')
+    html = template.render({
+        'invoices': invoices,
+        'total_registry_sum': total_registry_sum
+    })
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="invoices_list_report.pdf"'
+    pisa.CreatePDF(html, dest=response)
+    return response
+
+
+# Consolidated All Invoices Details PDF
+
+def all_invoices_pdf(request):
+    invoices = Invoice.objects.all().order_by('-created_at')
+
+    template = get_template('procurement/all_invoices_pdf.html')
+    html = template.render({
+        'invoices': invoices
+    })
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="all_invoices_consolidated.pdf"'
+    pisa.CreatePDF(html, dest=response)
+    return response
