@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 import re
+from .models import UserProfile
 
 def login_view(request):
 
@@ -132,12 +133,24 @@ def signup_view(request):
 
             return redirect('signup')
 
-        User.objects.create_user(
+        user = User.objects.create_user(
             username=username,
             email=email,
             password=password,
             first_name=first_name,
             last_name=last_name
+        )
+
+        UserProfile.objects.create(
+            user=user,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            role=role,
+            country=country,
+            password=password,
+            photo=request.FILES.get('photo')
         )
 
         messages.success(
