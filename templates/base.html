@@ -57,8 +57,13 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="{% url 'procurement:po_list' %}" class="sidebar-link {% if 'procurement' in request.resolver_match.namespaces or 'procurement' in request.path %}active{% endif %}">
-                    <i class="bi bi-cart-check"></i> Procurement
+                <a href="{% url 'procurement:po_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'po_list' or 'po' in request.path %}active{% endif %}">
+                    <i class="bi bi-cart-check"></i> Purchase Orders
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'procurement:invoice_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'invoice_list' or 'invoice' in request.path %}active{% endif %}">
+                    <i class="bi bi-receipt"></i> Invoices
                 </a>
             </li>
             <li class="sidebar-item">
