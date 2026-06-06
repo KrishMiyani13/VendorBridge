@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="register-container">
+
+    <div class="register-card">
+
+        <div class="profile-circle large">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="profile">
+        </div>
+
+       <form method="POST" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="row">
+
+                <input type="text" name="first_name" required placeholder="First Name">
+
+                <input type="text" name="last_name" required placeholder="Last Name">
+
+            </div>
+
+            <div class="row">
+
+                <input type="email" name="email" required placeholder="Email Address">
+
+                <input type="text" name="phone" required placeholder="Phone Number">
+
+            </div>
+            <div class="row">
+
+    <input
+        type="text"
+        name="username"
+        placeholder="Username"
+        required
+    >
+
+    <input
+        type="file"
+        name="photo"
+        accept="image/*"
+        required
+        placeholder="Profile Photo"
+    >
+
+</div>
+
+<div class="row">
+
+    <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        required
+    >
+
+    <input
+        type="password"
+        name="confirm_password"
+        placeholder="Confirm Password"
+        required
+    >
+
+</div>
+
+            <div class="row">
+
+                <select name="role" required>
+
+                    <option>
+                        Select Role
+                    </option>
+
+                    <option>
+                        Admin
+                    </option>
+
+                    <option>
+                        Vendor
+                    </option>
+
+                    <option>
+                        Manager
+                    </option>
+                    
+                </select>
+
+                <select name="country" required>
+
+    <option value="">
+        Select Country
+    </option>
+
+    <option value="India">
+        India
+    </option>
+
+    <option value="USA">
+        USA
+    </option>
+
+    <option value="Canada">
+        Canada
+    </option>
+
+    <option value="UK">
+        United Kingdom
+    </option>
+
+    <option value="Australia">
+        Australia
+    </option>
+
+</select>
+            </div>
+            
+
+            <button type="submit">
+                Register
+            </button>
+            <p>
+
+                Already have an account?    
+
+                <a href="{% url 'login' %}">
+                    Login
+                </a>
+
+            </p>
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
