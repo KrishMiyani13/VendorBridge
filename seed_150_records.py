@@ -12,8 +12,9 @@ from vendors.models import Vendor, VendorCategory
 from rfq.models import RFQ, RFQItem
 from quotations.models import Quotation
 from approvals.models import Approval
+from procurement.models import PurchaseOrder, Invoice
 
-print("Initializing 150-record database seeding...")
+print("Initializing 150-record database seeding (including POs and Invoices)...")
 
 # 1. Create default admin user if not exists
 user, created = User.objects.get_or_create(username='admin')
@@ -211,5 +212,48 @@ for i in range(40):
     if created:
         approvals_created += 1
 
+# 7. Create Purchase Orders
+print("Creating 15 Purchase Orders...")
+pos_created = 0
+quotations_list = list(Quotation.objects.all())
+vendors_list = list(Vendor.objects.all())
+
+if quotations_list and vendors_list:
+    for i in range(15):
+        po_num = f"PO-{1000 + i}"
+        quotation = random.choice(quotations_list)
+        vendor = random.choice(vendors_list)
+        po, created = PurchaseOrder.objects.get_or_create(
+            po_number=po_num,
+            defaults={
+                'vendor': vendor,
+                'quotation': quotation,
+                'amount': quotation.grand_total,
+                'status': random.choice(['Pending', 'Approved', 'Shipped', 'Delivered'])
+            }
+        )
+        if created:
+            pos_created += 1
+
+# 8. Create Invoices
+print("Creating 10 Invoices...")
+invoices_created = 0
+pos_list = list(PurchaseOrder.objects.all())
+if pos_list:
+    for i in range(10):
+        inv_num = f"INV-{1000 + i}"
+        po = random.choice(pos_list)
+        invoice, created = Invoice.objects.get_or_create(
+            invoice_number=inv_num,
+            defaults={
+                'purchase_order': po,
+                'total_amount': po.amount,
+                'due_date': date.today() + timedelta(days=random.randint(10, 30)),
+                'status': random.choice(['Unpaid', 'Paid', 'Overdue'])
+            }
+        )
+        if created:
+            invoices_created += 1
+
 print(f"Database successfully populated!")
-print(f"Total Created: 30 Vendors, 30 RFQs, {quotations_created} Quotations, {approvals_created} Approvals (Total ~150 records).")
+print(f"Total Created: 30 Vendors, 30 RFQs, {quotations_created} Quotations, {approvals_created} Approvals, {pos_created} POs, {invoices_created} Invoices.")
