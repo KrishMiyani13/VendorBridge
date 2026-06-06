@@ -1,5 +1,6 @@
 from django.db import models
-
+import re
+from django.contrib.auth.models import User
 class UserProfile(models.Model):
 
     first_name = models.CharField(max_length=50)

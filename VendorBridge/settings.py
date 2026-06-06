@@ -62,16 +62,13 @@ ROOT_URLCONF = 'VendorBridge.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-<<<<<<< HEAD
         'DIRS': [BASE_DIR / 'templates'],
-=======
 
         'DIRS': [BASE_DIR / 'templates'],
 
->>>>>>> 83c76396f548d737eed7f6a5ad1284475aed2f8c
         'APP_DIRS': True,
 
-        'OPTIONS': {
+        'OPTIONS': {    
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
