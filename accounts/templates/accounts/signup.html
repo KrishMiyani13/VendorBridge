@@ -1,268 +1,582 @@
 {% extends 'base.html' %}
-
+{% load static %}
+{% block title %}Register — VendorBridge{% endblock %}
 {% block content %}
-
-<div class="register-container">
-    <div class="register-card">
-
-        <div class="profile-circle large">
-            <img id="profilePreview"
-                 src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                 alt="profile">
+<div class="auth-container d-flex align-items-center justify-content-center py-5" style="background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%); min-height: 100vh;">
+    <div class="auth-card p-4 p-md-5 border-0 shadow-lg bg-white rounded-4" style="width: 100%; max-width: 550px; transition: all 0.3s ease;">
+        
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-dark mb-1">Create Account</h2>
+            <p class="text-muted small">Join VendorBridge Procurement ERP</p>
         </div>
-
-        <form method="POST" enctype="multipart/form-data">
-
+        <!-- Progress Steps Indicator -->
+        <div class="signup-progress mb-4">
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="progressFill" style="width: 0%;"></div>
+            </div>
+            <div class="steps-wrapper d-flex justify-content-between position-relative" style="z-index: 2;">
+                <div class="step-node active" id="node1">
+                    <div class="node-circle">1</div>
+                    <span class="node-label">Personal</span>
+                </div>
+                <div class="step-node" id="node2">
+                    <div class="node-circle">2</div>
+                    <span class="node-label">Security</span>
+                </div>
+                <div class="step-node" id="node3">
+                    <div class="node-circle">3</div>
+                    <span class="node-label">Avatar</span>
+                </div>
+            </div>
+        </div>
+        <!-- Alert messages display -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data" id="signupForm" class="needs-validation" novalidate>
             {% csrf_token %}
-
-            <div class="row">
-                <input type="text" name="first_name" required placeholder="First Name">
-                <input type="text" name="last_name" required placeholder="Last Name">
-            </div>
-
-            <div class="row">
-                <input type="email" name="email" required placeholder="Email Address">
-                <input type="text"
-                       id="phone"
-                       name="phone"
-                       maxlength="10"
-                       placeholder="Phone Number"
-                       required>
-            </div>
-
-            <div class="row">
-                <input type="text"
-                       id="username"
-                       name="username"
-                       placeholder="Username"
-                       required>
-
-                <input type="file"
-                       id="photo"
-                       name="photo"
-                       accept="image/*"
-                       required>
-            </div>
-
-            <small id="usernameMsg"></small>
-
-            <div class="row">
-                <div style="width:100%; position:relative;">
-                    <input type="password"
-                           id="password"
-                           name="password"
-                           placeholder="Password"
-                           required>
-
-                    <span class="toggle-password"
-                          onclick="togglePassword('password')">
-                          👁
-                    </span>
-
-                    <small id="strength"></small>
+            <!-- ================= STEP 1: PERSONAL DETAILS ================= -->
+            <div class="step-pane active" id="step1">
+                <h5 class="fw-bold mb-3 text-start"><i class="bi bi-person me-2 text-primary"></i>Personal Information</h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">First Name</label>
+                        <input type="text" name="first_name" id="firstNameField" class="form-control py-2" placeholder="John" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">Last Name</label>
+                        <input type="text" name="last_name" id="lastNameField" class="form-control py-2" placeholder="Doe" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">Email Address</label>
+                        <input type="email" name="email" id="emailField" class="form-control py-2" placeholder="john.doe@example.com" required>
+                        <small class="text-danger text-start d-none" id="emailError">Please enter a valid email address.</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">Phone Number</label>
+                        <input type="text" name="phone" id="phoneField" class="form-control py-2" placeholder="10-digit mobile number" maxlength="10" required>
+                        <small class="text-muted text-start d-block mt-1" style="font-size: 0.75rem;">Digits only, exactly 10 digits.</small>
+                        <small class="text-danger text-start d-none" id="phoneError">Phone number must be exactly 10 digits.</small>
+                    </div>
                 </div>
-
-                <div style="width:100%; position:relative;">
-                    <input type="password"
-                           id="confirm_password"
-                           name="confirm_password"
-                           placeholder="Confirm Password"
-                           required>
-
-                    <span class="toggle-password"
-                          onclick="togglePassword('confirm_password')">
-                          👁
-                    </span>
-
-                    <small id="matchMsg"></small>
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="button" class="btn btn-primary px-4 py-2" onclick="nextStep(2)">
+                        Next Step <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
                 </div>
             </div>
-
-            <div class="row">
-                <select name="role" required>
-                    <option value="">Select Role</option>
-                    <option>Admin</option>
-                    <option>Vendor</option>
-                    <option>Manager</option>
-                </select>
-
-                <select name="country" required>
-                    <option value="">Select Country</option>
-                    <option>India</option>
-                    <option>USA</option>
-                    <option>Canada</option>
-                    <option>United Kingdom</option>
-                    <option>Australia</option>
-                </select>
+            <!-- ================= STEP 2: CREDENTIALS & SECURITY ================= -->
+            <div class="step-pane d-none" id="step2">
+                <h5 class="fw-bold mb-3 text-start"><i class="bi bi-shield-lock me-2 text-primary"></i>Account Security</h5>
+                
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-person-badge"></i></span>
+                            <input type="text" name="username" id="usernameField" class="form-control py-2" placeholder="Choose username" required>
+                        </div>
+                        <small class="text-start d-block mt-1" id="usernameMsg" style="font-size: 0.75rem;"></small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">Account Role</label>
+                        <select name="role" id="roleField" class="form-select py-2" required>
+                            <option value="">Select Role</option>
+                            <option>Admin</option>
+                            <option>Vendor</option>
+                            <option>Manager</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">Country</label>
+                        <select name="country" id="countryField" class="form-select py-2" required>
+                            <option value="">Select Country</option>
+                            <option>India</option>
+                            <option>USA</option>
+                            <option>Canada</option>
+                            <option>United Kingdom</option>
+                            <option>Australia</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 position-relative">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">Password</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="passwordField" class="form-control py-2" placeholder="Password (min 8 chars)" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('passwordField')">
+                                <i class="bi bi-eye" id="passwordFieldEye"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Password Strength Meter -->
+                        <div class="pw-strength-bar mt-2">
+                            <div class="pw-strength-fill" id="strengthFill" style="width: 0%; background-color: #ef4444;"></div>
+                        </div>
+                        <small class="text-start d-block mt-1 fw-medium" id="strengthText" style="font-size: 0.75rem; color: #ef4444;">Weak</small>
+                        <!-- Password Criteria Checklist -->
+                        <ul class="list-unstyled text-start mt-2 mb-0" style="font-size: 0.7rem;">
+                            <li id="critLength" class="text-danger"><i class="bi bi-x-circle me-1"></i>At least 8 characters</li>
+                            <li id="critNum" class="text-danger"><i class="bi bi-x-circle me-1"></i>Contains number or special char</li>
+                            <li id="critCase" class="text-danger"><i class="bi bi-x-circle me-1"></i>Upper & lowercase letters</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6 position-relative">
+                        <label class="form-label text-start d-block fw-semibold text-muted small">Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" name="confirm_password" id="confirmPasswordField" class="form-control py-2" placeholder="Confirm password" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirmPasswordField')">
+                                <i class="bi bi-eye" id="confirmPasswordFieldEye"></i>
+                            </button>
+                        </div>
+                        <small class="text-start d-block mt-1 fw-semibold" id="matchMsg" style="font-size: 0.75rem;"></small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2" onclick="prevStep(1)">
+                        <i class="bi bi-arrow-left me-1"></i> Back
+                    </button>
+                    <button type="button" class="btn btn-primary px-4 py-2" onclick="nextStep(3)">
+                        Next Step <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
             </div>
-
-            <button type="submit">
-                Register
-            </button>
-
-            <p>
-                Already have an account?
-                <a href="{% url 'login' %}">
-                    Login
-                </a>
+            <!-- ================= STEP 3: AVATAR & FINAL PREVIEW ================= -->
+            <div class="step-pane d-none" id="step3">
+                <h5 class="fw-bold mb-3 text-start"><i class="bi bi-camera me-2 text-primary"></i>Profile Avatar</h5>
+                
+                <div class="text-center my-4 position-relative">
+                    <!-- Photo Hover Area -->
+                    <div class="profile-upload-wrapper mx-auto position-relative" onclick="triggerFileInput()">
+                        <div class="profile-circle large border border-3 border-light shadow mx-auto d-flex align-items-center justify-content-center bg-light overflow-hidden" style="width: 140px; height: 140px; border-radius: 50%; cursor: pointer;">
+                            <img id="profilePreview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="profile-upload-overlay d-flex align-items-center justify-content-center rounded-circle" style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; background-color: rgba(0, 0, 0, 0.4); opacity: 0; transition: all 0.3s ease; cursor: pointer;">
+                            <i class="bi bi-camera-fill text-white fs-3"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-2">Click profile photo to upload custom avatar</p>
+                    
+                    <input type="file" name="photo" id="photoField" accept="image/*" class="d-none" required onchange="handlePhotoSelect(this)">
+                    <small class="text-danger d-none" id="photoError">Profile photo is required.</small>
+                </div>
+                <!-- Summary Overview -->
+                <div class="bg-light p-3 rounded-3 mb-4 text-start" style="font-size: 0.85rem;">
+                    <h6 class="fw-bold text-dark mb-2 border-bottom pb-1">Account Summary</h6>
+                    <div class="row g-2">
+                        <div class="col-6 text-muted">Full Name:</div>
+                        <div class="col-6 fw-semibold text-dark" id="summaryName">—</div>
+                        <div class="col-6 text-muted">Username:</div>
+                        <div class="col-6 fw-semibold text-dark" id="summaryUsername">—</div>
+                        <div class="col-6 text-muted">Phone Number:</div>
+                        <div class="col-6 fw-semibold text-dark" id="summaryPhone">—</div>
+                        <div class="col-6 text-muted">Selected Role:</div>
+                        <div class="col-6 fw-semibold text-dark" id="summaryRole">—</div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2" onclick="prevStep(2)">
+                        <i class="bi bi-arrow-left me-1"></i> Back
+                    </button>
+                    <button type="submit" class="btn btn-success px-5 py-2">
+                        <i class="bi bi-check-circle-fill me-1"></i> Register Account
+                    </button>
+                </div>
+            </div>
+            <!-- Login footer -->
+            <p class="text-center text-muted small mt-4 mb-0">
+                Already have an account? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Login Here</a>
             </p>
-
         </form>
-
     </div>
 </div>
-
 <style>
-
-.register-card{
-    animation: fadeIn 0.6s ease;
+/* Multi-step progress tracker */
+.signup-progress {
+    position: relative;
 }
-
-@keyframes fadeIn{
-    from{
-        opacity:0;
-        transform:translateY(20px);
+.progress-bar-track {
+    position: absolute;
+    top: 20px;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background-color: #e2e8f0;
+    z-index: 1;
+    border-radius: 2px;
+}
+.progress-bar-fill {
+    height: 100%;
+    background-color: #4f46e5;
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+.step-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60px;
+    position: relative;
+}
+.node-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #e2e8f0;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+.node-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-top: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+.step-node.active .node-circle {
+    background-color: #4f46e5;
+    color: #ffffff;
+    border-color: #c7d2fe;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+.step-node.active .node-label {
+    color: #4f46e5;
+}
+.step-node.done .node-circle {
+    background-color: #10b981;
+    color: #ffffff;
+    border-color: #a7f3d0;
+}
+.step-node.done .node-label {
+    color: #10b981;
+}
+/* Animations for panel slide/fade */
+.step-pane {
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
     }
-    to{
-        opacity:1;
-        transform:translateY(0);
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
-
-input,select{
-    transition:0.3s;
+/* Photo upload hover effect */
+.profile-upload-wrapper:hover .profile-upload-overlay {
+    opacity: 1 !important;
 }
-
-input:focus,
-select:focus{
-    border:2px solid #4CAF50;
-    box-shadow:0 0 10px rgba(76,175,80,.3);
+/* Password Strength Bar */
+.pw-strength-bar {
+    height: 4px;
+    background-color: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
 }
-
-.toggle-password{
-    position:absolute;
-    right:12px;
-    top:12px;
-    cursor:pointer;
+.pw-strength-fill {
+    height: 100%;
+    transition: all 0.3s ease;
 }
-
-#strength,
-#matchMsg,
-#usernameMsg{
-    display:block;
-    margin-top:5px;
-    font-size:12px;
+/* Custom validation styles */
+.form-control:focus, .form-select:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
-
-.profile-circle img{
-    width:120px;
-    height:120px;
-    border-radius:50%;
-    object-fit:cover;
-}
-
 </style>
-
 <script>
-
-// Image Preview
-
-document.getElementById('photo').addEventListener('change', function() {
-
-    const file = this.files[0];
-
-    if(file){
-        const reader = new FileReader();
-
-        reader.onload = function(e){
-            document.getElementById('profilePreview').src = e.target.result;
+let currentStep = 1;
+function updateProgress() {
+    // Progress Fill Width
+    const fillPercent = (currentStep - 1) * 50;
+    document.getElementById('progressFill').style.width = fillPercent + '%';
+    // Update nodes
+    for (let i = 1; i <= 3; i++) {
+        const node = document.getElementById('node' + i);
+        if (i < currentStep) {
+            node.className = 'step-node done';
+            node.querySelector('.node-circle').innerHTML = '✓';
+        } else if (i === currentStep) {
+            node.className = 'step-node active';
+            node.querySelector('.node-circle').innerHTML = i;
+        } else {
+            node.className = 'step-node';
+            node.querySelector('.node-circle').innerHTML = i;
         }
-
+    }
+}
+function validateStep(step) {
+    if (step === 1) {
+        const firstName = document.getElementById('firstNameField').value.trim();
+        const lastName = document.getElementById('lastNameField').value.trim();
+        const email = document.getElementById('emailField').value.trim();
+        const phone = document.getElementById('phoneField').value.trim();
+        
+        let isValid = true;
+        if (!firstName) {
+            document.getElementById('firstNameField').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('firstNameField').classList.remove('is-invalid');
+        }
+        if (!lastName) {
+            document.getElementById('lastNameField').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('lastNameField').classList.remove('is-invalid');
+        }
+        const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        if (!emailPattern.test(email)) {
+            document.getElementById('emailField').classList.add('is-invalid');
+            document.getElementById('emailError').classList.remove('d-none');
+            isValid = false;
+        } else {
+            document.getElementById('emailField').classList.remove('is-invalid');
+            document.getElementById('emailError').classList.add('d-none');
+        }
+        if (phone.length !== 10 || isNaN(phone)) {
+            document.getElementById('phoneField').classList.add('is-invalid');
+            document.getElementById('phoneError').classList.remove('d-none');
+            isValid = false;
+        } else {
+            document.getElementById('phoneField').classList.remove('is-invalid');
+            document.getElementById('phoneError').classList.add('d-none');
+        }
+        return isValid;
+    }
+    if (step === 2) {
+        const username = document.getElementById('usernameField').value.trim();
+        const role = document.getElementById('roleField').value;
+        const country = document.getElementById('countryField').value;
+        const password = document.getElementById('passwordField').value;
+        const confirmPassword = document.getElementById('confirmPasswordField').value;
+        let isValid = true;
+        if (username.length < 4) {
+            document.getElementById('usernameField').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('usernameField').classList.remove('is-invalid');
+        }
+        if (!role) {
+            document.getElementById('roleField').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('roleField').classList.remove('is-invalid');
+        }
+        if (!country) {
+            document.getElementById('countryField').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('countryField').classList.remove('is-invalid');
+        }
+        if (password.length < 8) {
+            document.getElementById('passwordField').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('passwordField').classList.remove('is-invalid');
+        }
+        if (password !== confirmPassword || !confirmPassword) {
+            document.getElementById('confirmPasswordField').classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById('confirmPasswordField').classList.remove('is-invalid');
+        }
+        return isValid;
+    }
+    return true;
+}
+function nextStep(step) {
+    if (validateStep(currentStep)) {
+        // Hide current step
+        document.getElementById('step' + currentStep).classList.add('d-none');
+        document.getElementById('step' + currentStep).classList.remove('active');
+        
+        // Show next step
+        currentStep = step;
+        document.getElementById('step' + currentStep).classList.remove('d-none');
+        document.getElementById('step' + currentStep).classList.add('active');
+        // Populate final summary when reaching step 3
+        if (currentStep === 3) {
+            populateSummary();
+        }
+        updateProgress();
+    }
+}
+function prevStep(step) {
+    // Hide current step
+    document.getElementById('step' + currentStep).classList.add('d-none');
+    document.getElementById('step' + currentStep).classList.remove('active');
+    
+    // Show previous step
+    currentStep = step;
+    document.getElementById('step' + currentStep).classList.remove('d-none');
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateProgress();
+}
+function populateSummary() {
+    const fName = document.getElementById('firstNameField').value;
+    const lName = document.getElementById('lastNameField').value;
+    const username = document.getElementById('usernameField').value;
+    const phone = document.getElementById('phoneField').value;
+    const role = document.getElementById('roleField').value;
+    document.getElementById('summaryName').innerText = fName + ' ' + lName;
+    document.getElementById('summaryUsername').innerText = username;
+    document.getElementById('summaryPhone').innerText = phone;
+    document.getElementById('summaryRole').innerText = role;
+}
+// Click profile circle to open file input
+function triggerFileInput() {
+    document.getElementById('photoField').click();
+}
+// Avatar upload preview selection
+function handlePhotoSelect(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profilePreview').src = e.target.result;
+            document.getElementById('photoError').classList.add('d-none');
+        }
         reader.readAsDataURL(file);
     }
-});
-
-// Show Hide Password
-
-function togglePassword(id){
-
-    let field = document.getElementById(id);
-
-    if(field.type === "password"){
-        field.type = "text";
-    }
-    else{
-        field.type = "password";
+}
+// Show/Hide password toggle
+function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    const eyeIcon = document.getElementById(fieldId + 'Eye');
+    if (field.type === 'password') {
+        field.type = 'text';
+        eyeIcon.classList.remove('bi-eye');
+        eyeIcon.classList.add('bi-eye-slash');
+    } else {
+        field.type = 'password';
+        eyeIcon.classList.remove('bi-eye-slash');
+        eyeIcon.classList.add('bi-eye');
     }
 }
-
-// Password Strength
-
-document.getElementById('password').addEventListener('keyup', function(){
-
-    let password = this.value;
-    let strength = document.getElementById('strength');
-
-    if(password.length < 6){
-        strength.innerHTML = "🔴 Weak Password";
-        strength.style.color = "red";
-    }
-    else if(password.length < 10){
-        strength.innerHTML = "🟡 Medium Password";
-        strength.style.color = "orange";
-    }
-    else{
-        strength.innerHTML = "🟢 Strong Password";
-        strength.style.color = "green";
-    }
-
+// Digits-only check for phone input
+document.getElementById('phoneField').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
 });
-
-// Confirm Password Check
-
-document.getElementById('confirm_password').addEventListener('keyup', function(){
-
-    let pass = document.getElementById('password').value;
-    let confirm = this.value;
-    let msg = document.getElementById('matchMsg');
-
-    if(pass === confirm){
-        msg.innerHTML = "✅ Password Matched";
-        msg.style.color = "green";
+// Live Username validation
+document.getElementById('usernameField').addEventListener('input', function() {
+    const val = this.value.trim();
+    const msg = document.getElementById('usernameMsg');
+    
+    if (val.length < 4) {
+        this.classList.add('is-invalid');
+        msg.innerText = "Username too short (minimum 4 characters)";
+        msg.style.color = "#ef4444";
+    } else {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+        msg.innerText = "Username looks good ✓";
+        msg.style.color = "#10b981";
     }
-    else{
-        msg.innerHTML = "❌ Password Not Matched";
-        msg.style.color = "red";
-    }
-
 });
-
-// Phone Validation
-
-document.getElementById('phone').addEventListener('input', function(){
-
-    this.value = this.value.replace(/[^0-9]/g,'');
-
-});
-
-// Username Validation
-
-document.getElementById('username').addEventListener('keyup', function(){
-
-    let username = this.value;
-    let msg = document.getElementById('usernameMsg');
-
-    if(username.length < 4){
-        msg.innerHTML = "Username too short";
-        msg.style.color = "red";
+// Live Password Strength Meter
+document.getElementById('passwordField').addEventListener('input', function() {
+    const val = this.value;
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthText = document.getElementById('strengthText');
+    let score = 0;
+    
+    // Length check
+    const critLength = document.getElementById('critLength');
+    if (val.length >= 8) {
+        score++;
+        critLength.className = 'text-success';
+        critLength.querySelector('i').className = 'bi bi-check-circle-fill me-1';
+    } else {
+        critLength.className = 'text-danger';
+        critLength.querySelector('i').className = 'bi bi-x-circle me-1';
     }
-    else{
-        msg.innerHTML = "Looks good ✓";
-        msg.style.color = "green";
+    // Number or special character check
+    const critNum = document.getElementById('critNum');
+    const hasNumOrSpec = /[0-9!@#$%^&*(),.?":{}|<>]/.test(val);
+    if (hasNumOrSpec) {
+        score++;
+        critNum.className = 'text-success';
+        critNum.querySelector('i').className = 'bi bi-check-circle-fill me-1';
+    } else {
+        critNum.className = 'text-danger';
+        critNum.querySelector('i').className = 'bi bi-x-circle me-1';
     }
-
+    // Mixed case check
+    const critCase = document.getElementById('critCase');
+    const hasMixedCase = /[a-z]/.test(val) && /[A-Z]/.test(val);
+    if (hasMixedCase) {
+        score++;
+        critCase.className = 'text-success';
+        critCase.querySelector('i').className = 'bi bi-check-circle-fill me-1';
+    } else {
+        critCase.className = 'text-danger';
+        critCase.querySelector('i').className = 'bi bi-x-circle me-1';
+    }
+    // Calculate percent and color
+    let width = '33%';
+    let color = '#ef4444';
+    let label = 'Weak';
+    if (val.length === 0) {
+        width = '0%';
+        label = 'Too short';
+    } else if (score === 1) {
+        width = '33%';
+        color = '#ef4444';
+        label = 'Weak';
+    } else if (score === 2) {
+        width = '66%';
+        color = '#f59e0b';
+        label = 'Medium';
+    } else if (score === 3) {
+        width = '100%';
+        color = '#10b981';
+        label = 'Strong';
+    }
+    strengthFill.style.width = width;
+    strengthFill.style.backgroundColor = color;
+    strengthText.innerText = label;
+    strengthText.style.color = color;
 });
-
+// Live confirm password check
+document.getElementById('confirmPasswordField').addEventListener('input', function() {
+    const password = document.getElementById('passwordField').value;
+    const confirmPassword = this.value;
+    const msg = document.getElementById('matchMsg');
+    if (password === confirmPassword && confirmPassword.length > 0) {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+        msg.innerText = "Passwords match ✓";
+        msg.style.color = "#10b981";
+    } else {
+        this.classList.add('is-invalid');
+        this.classList.remove('is-valid');
+        msg.innerText = "Passwords do not match";
+        msg.style.color = "#ef4444";
+    }
+});
+// Client-side form submission validations
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+    const photoInput = document.getElementById('photoField');
+    if (!photoInput.files.length) {
+        e.preventDefault();
+        document.getElementById('photoError').classList.remove('d-none');
+    } else {
+        document.getElementById('photoError').classList.add('d-none');
+    }
+});
 </script>
-
 {% endblock %}
