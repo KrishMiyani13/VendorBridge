@@ -3,139 +3,266 @@
 {% block content %}
 
 <div class="register-container">
-
     <div class="register-card">
 
         <div class="profile-circle large">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="profile">
+            <img id="profilePreview"
+                 src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                 alt="profile">
         </div>
 
-       <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data">
 
             {% csrf_token %}
 
             <div class="row">
-
                 <input type="text" name="first_name" required placeholder="First Name">
-
                 <input type="text" name="last_name" required placeholder="Last Name">
-
             </div>
 
             <div class="row">
-
                 <input type="email" name="email" required placeholder="Email Address">
-
-                <input type="text" name="phone" required placeholder="Phone Number">
-
+                <input type="text"
+                       id="phone"
+                       name="phone"
+                       maxlength="10"
+                       placeholder="Phone Number"
+                       required>
             </div>
-            <div class="row">
-
-    <input
-        type="text"
-        name="username"
-        placeholder="Username"
-        required
-    >
-
-    <input
-        type="file"
-        name="photo"
-        accept="image/*"
-        required
-        placeholder="Profile Photo"
-    >
-
-</div>
-
-<div class="row">
-
-    <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        required
-    >
-
-    <input
-        type="password"
-        name="confirm_password"
-        placeholder="Confirm Password"
-        required
-    >
-
-</div>
 
             <div class="row">
+                <input type="text"
+                       id="username"
+                       name="username"
+                       placeholder="Username"
+                       required>
 
+                <input type="file"
+                       id="photo"
+                       name="photo"
+                       accept="image/*"
+                       required>
+            </div>
+
+            <small id="usernameMsg"></small>
+
+            <div class="row">
+                <div style="width:100%; position:relative;">
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="Password"
+                           required>
+
+                    <span class="toggle-password"
+                          onclick="togglePassword('password')">
+                          👁
+                    </span>
+
+                    <small id="strength"></small>
+                </div>
+
+                <div style="width:100%; position:relative;">
+                    <input type="password"
+                           id="confirm_password"
+                           name="confirm_password"
+                           placeholder="Confirm Password"
+                           required>
+
+                    <span class="toggle-password"
+                          onclick="togglePassword('confirm_password')">
+                          👁
+                    </span>
+
+                    <small id="matchMsg"></small>
+                </div>
+            </div>
+
+            <div class="row">
                 <select name="role" required>
-
-                    <option>
-                        Select Role
-                    </option>
-
-                    <option>
-                        Admin
-                    </option>
-
-                    <option>
-                        Vendor
-                    </option>
-
-                    <option>
-                        Manager
-                    </option>
-                    
+                    <option value="">Select Role</option>
+                    <option>Admin</option>
+                    <option>Vendor</option>
+                    <option>Manager</option>
                 </select>
 
                 <select name="country" required>
-
-    <option value="">
-        Select Country
-    </option>
-
-    <option value="India">
-        India
-    </option>
-
-    <option value="USA">
-        USA
-    </option>
-
-    <option value="Canada">
-        Canada
-    </option>
-
-    <option value="UK">
-        United Kingdom
-    </option>
-
-    <option value="Australia">
-        Australia
-    </option>
-
-</select>
-
-
+                    <option value="">Select Country</option>
+                    <option>India</option>
+                    <option>USA</option>
+                    <option>Canada</option>
+                    <option>United Kingdom</option>
+                    <option>Australia</option>
+                </select>
             </div>
-            
 
             <button type="submit">
                 Register
             </button>
+
             <p>
-
-                Already have an account?    
-
+                Already have an account?
                 <a href="{% url 'login' %}">
                     Login
                 </a>
-
             </p>
+
         </form>
 
     </div>
-
 </div>
+
+<style>
+
+.register-card{
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+input,select{
+    transition:0.3s;
+}
+
+input:focus,
+select:focus{
+    border:2px solid #4CAF50;
+    box-shadow:0 0 10px rgba(76,175,80,.3);
+}
+
+.toggle-password{
+    position:absolute;
+    right:12px;
+    top:12px;
+    cursor:pointer;
+}
+
+#strength,
+#matchMsg,
+#usernameMsg{
+    display:block;
+    margin-top:5px;
+    font-size:12px;
+}
+
+.profile-circle img{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+</style>
+
+<script>
+
+// Image Preview
+
+document.getElementById('photo').addEventListener('change', function() {
+
+    const file = this.files[0];
+
+    if(file){
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+            document.getElementById('profilePreview').src = e.target.result;
+        }
+
+        reader.readAsDataURL(file);
+    }
+});
+
+// Show Hide Password
+
+function togglePassword(id){
+
+    let field = document.getElementById(id);
+
+    if(field.type === "password"){
+        field.type = "text";
+    }
+    else{
+        field.type = "password";
+    }
+}
+
+// Password Strength
+
+document.getElementById('password').addEventListener('keyup', function(){
+
+    let password = this.value;
+    let strength = document.getElementById('strength');
+
+    if(password.length < 6){
+        strength.innerHTML = "🔴 Weak Password";
+        strength.style.color = "red";
+    }
+    else if(password.length < 10){
+        strength.innerHTML = "🟡 Medium Password";
+        strength.style.color = "orange";
+    }
+    else{
+        strength.innerHTML = "🟢 Strong Password";
+        strength.style.color = "green";
+    }
+
+});
+
+// Confirm Password Check
+
+document.getElementById('confirm_password').addEventListener('keyup', function(){
+
+    let pass = document.getElementById('password').value;
+    let confirm = this.value;
+    let msg = document.getElementById('matchMsg');
+
+    if(pass === confirm){
+        msg.innerHTML = "✅ Password Matched";
+        msg.style.color = "green";
+    }
+    else{
+        msg.innerHTML = "❌ Password Not Matched";
+        msg.style.color = "red";
+    }
+
+});
+
+// Phone Validation
+
+document.getElementById('phone').addEventListener('input', function(){
+
+    this.value = this.value.replace(/[^0-9]/g,'');
+
+});
+
+// Username Validation
+
+document.getElementById('username').addEventListener('keyup', function(){
+
+    let username = this.value;
+    let msg = document.getElementById('usernameMsg');
+
+    if(username.length < 4){
+        msg.innerHTML = "Username too short";
+        msg.style.color = "red";
+    }
+    else{
+        msg.innerHTML = "Looks good ✓";
+        msg.style.color = "green";
+    }
+
+});
+
+</script>
 
 {% endblock %}
