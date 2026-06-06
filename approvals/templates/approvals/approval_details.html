@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Approval Workflow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .navbar {
+            background: #0f5132;
+            color: white;
+            padding: 20px 30px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .wrapper {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #111827;
+            color: white;
+            padding: 25px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .active {
+            background: #198754;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .title {
+            font-size: 38px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .step {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .step-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-label {
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .completed {
+            background: #198754;
+            color: white;
+            border-color: #198754;
+        }
+
+        .pending {
+            background: white;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #fff3cd;
+            color: #856404;
+            font-weight: bold;
+        }
+
+        .current {
+            background: #ffc107;
+        }
+
+        .line {
+            flex: 1;
+            height: 3px;
+            background: #ccc;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-top: 15px;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .approve {
+            background: #198754;
+        }
+
+        .reject {
+            background: #dc3545;
+        }
+
+        .row {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">VendorBridge</div>
+
+<div class="wrapper">
+
+    <div class="sidebar">
+        <ul>
+            <li>Dashboard</li>
+            <li>Vendors</li>
+            <li>RFQs</li>
+            <li>Quotations</li>
+            <li class="active">Approvals</li>
+            <li>Purchase Orders</li>
+            <li>Invoices</li>
+            <li>Reports</li>
+            <li>Activity</li>
+        </ul>
+    </div>
+
+    <div class="content">
+
+        <div class="title">Approval Workflow</div>
+
+        <div class="subtitle">
+            RFQ: Office Furniture Q2 • Vendor Approval Process
+        </div>
+
+        <div class="timeline">
+            <div class="step-wrapper">
+                <div class="step completed">✓</div>
+                <div class="step-label">Submitted</div>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="step-wrapper">
+                <div class="step completed">✓</div>
+                <div class="step-label">Manager Review</div>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="step-wrapper">
+                <div class="step current">3</div>
+                <div class="step-label">Finance Approval</div>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="step-wrapper">
+                <div class="step pending">4</div>
+                <div class="step-label">Generate PO</div>
+            </div>
+        </div>
+
+        <div class="grid">
+
+            <div class="card">
+                <h3>Approval Chain</h3>
+
+                <div class="row">
+                    <strong>Approver:</strong>
+                    {{ approval.approver_name }}
+                </div>
+
+                <div class="row">
+                    <strong>Level:</strong>
+                    {{ approval.level }}
+                </div>
+
+                <div class="row">
+                    <strong>Status:</strong>
+                    <span class="status-badge">{{ approval.status }}</span>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <textarea name="remarks" placeholder="Add approval remarks..."></textarea>
+            </div>
+
+            <div class="card">
+                <h3>Quotation Summary</h3>
+
+                <div class="row"><strong>Remarks:</strong> {{ approval.remarks }}</div>
+                <div class="row"><strong>Status:</strong> {{ approval.status }}</div>
+                <div class="row"><strong>Approval Level:</strong> {{ approval.level }}</div>
+
+                <hr style="margin:20px 0;">
+                <h4>Approval Actions</h4>
+                <p>Review the quotation and choose an action.</p>
+
+                <div class="buttons">
+                    <button type="submit" name="action" value="approve" class="btn approve">Approve</button>
+                    <button type="submit" name="action" value="reject" class="btn reject">Reject</button>
+                </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

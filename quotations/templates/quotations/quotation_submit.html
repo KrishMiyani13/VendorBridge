@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Quotation</title>
+    <link rel="stylesheet" href="{% static 'quotation/css/quotation.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<div class="navbar">🚀 VendorBridge Procurement Suite</div>
+
+<div class="wrapper">
+
+<div class="sidebar">
+<ul>
+<li><i class="fas fa-chart-line"></i> Dashboard</li>
+<li><i class="fas fa-users"></i> Vendors</li>
+<li><i class="fas fa-file-signature"></i> RFQ's</li>
+<li>
+    <details open>
+        <summary class="active">
+            <span><i class="fas fa-file-invoice-dollar"></i> Quotations</span>
+            <span>▼</span>
+        </summary>
+        <div class="submenu">
+            <a href="/quotations/">📄 Submit Quotation</a>
+            <a href="/quotations/drafts/">📝 Draft Quotations</a>
+            <a href="/quotations/compare/">📊 Quotation Comparison</a>
+        </div>
+    </details>
+</li>
+<li><i class="fas fa-check-circle"></i> Approvals</li>
+<li><i class="fas fa-shopping-cart"></i> Purchase Orders</li>
+<li><i class="fas fa-receipt"></i> Invoices</li>
+<li><i class="fas fa-chart-pie"></i> Reports</li>
+<li><i class="fas fa-history"></i> Activity</li>
+</ul>
+</div>
+
+<form method="POST">
+{% csrf_token %}
+<div class="content">
+
+<h1 class="page-title">Submit Quotations</h1>
+<p class="page-subtitle">Create, manage and compare vendor quotations professionally.</p>
+
+<div class="card">
+<h3>RFQ Selection</h3>
+<label>Select RFQ Department</label>
+<select name="rfq_title">
+<option>Office Furniture</option>
+<option>IT Equipment</option>
+<option>HR Department</option>
+<option>Marketing</option>
+</select>
+</div>
+
+<div class="card">
+<h3>Vendor Quotation Details</h3>
+<p>Add products, pricing and delivery information below.</p>
+
+<button type="button" class="btn" onclick="addRow()">+ Add Item</button>
+
+<div class="table-container">
+<table id="quotationTable">
+<tr>
+<th>Item</th>
+<th>Qty</th>
+<th>Unit Price</th>
+<th>Total</th>
+<th>Delivery Days</th>
+<th>Action</th>
+</tr>
+<tr>
+<td><input type="text" name="item_name" placeholder="Chair"></td>
+<td><input type="number" name="quantity" class="qty" oninput="calculateTotals()"></td>
+<td><input type="number" name="unit_price" class="price" oninput="calculateTotals()"></td>
+<td><input type="number" class="total" readonly></td>
+<td><input type="number" name="delivery_days"></td>
+<td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>
+</tr>
+</table>
+</div>
+</div>
+
+<div class="row">
+<div>
+<label>GST %</label>
+<input type="number" id="gstPercent" value="18" oninput="calculateTotals()">
+
+<label>Notes / Terms</label>
+<textarea rows="5" name="notes"></textarea>
+
+<br><br>
+<button class="btn" type="submit" onclick="setStatus('submitted')">Save</button>
+<button class="btn" type="submit" onclick="setStatus('draft')">Save Draft</button>
+<input type="hidden" id="statusField" name="status" value="submitted">
+<input type="hidden" id="grandTotalField" name="grand_total" value="0">
+<input type="hidden" name="vendor_name" value="Demo Vendor">
+<input type="hidden" name="gst_percentage" id="gstHidden" value="18">
+<input type="hidden" name="delivery_days" value="7">
+<input type="hidden" name="vendor_rating" value="4.5">
+<input type="hidden" name="payment_terms" value="30 Days">
+<p id="statusMessage"><strong>Status:</strong> Submitted</p>
+</div>
+
+<div class="card summary-card">
+<h3>Quotation Summary</h3>
+<p>Subtotal: ₹<span id="subtotal">0</span></p>
+<p>GST: ₹<span id="gstAmount">0</span></p>
+<hr>
+<h2>Grand Total: ₹<span id="grandTotal">0</span></h2>
+</div>
+</div>
+
+ </div>
+
+</div>
+
+</form>
+<script>
+function addRow(){
+    const table=document.getElementById('quotationTable');
+    const row=table.insertRow(-1);
+    row.innerHTML=`
+    <td><input type="text" name="item_name" placeholder="Item"></td>
+    <td><input type="number" name="quantity" class="qty" oninput="calculateTotals()"></td>
+    <td><input type="number" name="unit_price" class="price" oninput="calculateTotals()"></td>
+    <td><input type="number" class="total" readonly></td>
+    <td><input type="number" name="delivery_days"></td>
+    <td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>`;
+}
+
+function calculateTotals(){
+    let subtotal=0;
+
+    document.querySelectorAll('#quotationTable tr').forEach((row,index)=>{
+        if(index===0) return;
+
+        const qty=row.querySelector('.qty');
+        const price=row.querySelector('.price');
+        const total=row.querySelector('.total');
+
+        if(qty && price && total){
+            const rowTotal=(Number(qty.value)||0)*(Number(price.value)||0);
+            total.value=rowTotal;
+            subtotal+=rowTotal;
+        }
+    });
+
+    const gstPercent=Number(document.getElementById('gstPercent').value)||0;
+    const gstAmount=subtotal*gstPercent/100;
+    const grandTotal=subtotal+gstAmount;
+
+    document.getElementById('subtotal').innerText=subtotal.toFixed(2);
+    document.getElementById('gstAmount').innerText=gstAmount.toFixed(2);
+    document.getElementById('grandTotal').innerText=grandTotal.toFixed(2);
+    document.getElementById('grandTotalField').value = grandTotal.toFixed(2);
+    document.getElementById('gstHidden').value = gstPercent;
+}
+
+function deleteRow(button){
+    button.closest('tr').remove();
+    calculateTotals();
+}
+
+function setStatus(status){
+    document.getElementById('statusField').value = status;
+    document.getElementById('statusMessage').innerText = 'Current Status: ' + status;
+}
+</script>
+</body>
+</html>

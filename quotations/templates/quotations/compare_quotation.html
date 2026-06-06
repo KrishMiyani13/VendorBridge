@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Quotations</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0b0f14;
+            color: white;
+        }
+        .navbar {
+            background: #198754;
+            color: white;
+            padding: 20px 30px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px;
+            background: #111827;
+            color: white;
+            padding: 25px;
+            box-sizing: border-box;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar li {
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .sidebar li:hover {
+            background: #198754;
+            border-color: #198754;
+        }
+        .sidebar .active {
+            background: #198754;
+            border-color: #198754;
+            font-weight: bold;
+        }
+        .content {
+            flex: 1;
+            padding: 30px 40px;
+            box-sizing: border-box;
+        }
+        h1.title {
+            font-size: 38px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        h2.subtitle {
+            font-size: 18px;
+            font-weight: normal;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #cfd8dc;
+        }
+        .rfq-summary {
+            border: 1px solid white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            color: #e0e0e0;
+            background: #1a1f29;
+            font-size: 16px;
+        }
+        h3.section-heading {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            color: white;
+        }
+        table thead tr {
+            border-bottom: 2px solid white;
+        }
+        table th, table td {
+            padding: 12px 15px;
+            border: 1px solid white;
+            text-align: left;
+            font-size: 16px;
+        }
+        .two-column {
+            display: flex;
+            gap: 40px;
+        }
+        .left-column, .right-column {
+            flex: 1;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input[type="number"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid white;
+            border-radius: 6px;
+            background: #1a1f29;
+            color: white;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        textarea {
+            min-height: 80px;
+        }
+        button {
+            padding: 12px 20px;
+            border: 1.5px solid white;
+            border-radius: 6px;
+            background: transparent;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: background 0.3s, color 0.3s;
+        }
+        button:hover {
+            background: white;
+            color: #198754;
+            border-color: white;
+        }
+        .summary-card {
+            background: #1a1f29;
+            border: 1px solid white;
+            border-radius: 8px;
+            padding: 20px 25px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: white;
+        }
+        .summary-card div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .summary-card div.total {
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 1px solid white;
+            padding-top: 12px;
+        }
+    </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="navbar">🚀 VendorBridge Procurement Suite</div>
+<div class="wrapper">
+    <div class="sidebar">
+        <ul>
+            <li><i class="fas fa-chart-line"></i> Dashboard</li>
+            <li><i class="fas fa-users"></i> Vendors</li>
+            <li><i class="fas fa-file-signature"></i> RFQ's</li>
+
+            <li>
+                <details open>
+                    <summary class="active">
+                        <span><i class="fas fa-file-invoice-dollar"></i> Quotations</span>
+                        <span>▼</span>
+                    </summary>
+                    <div class="submenu">
+                        <a href="/quotations/">📄 Submit Quotation</a><br><br>
+                        <a href="/quotations/drafts/">📝 Draft Quotations</a><br><br>
+                        <a href="/quotations/compare/" style="font-weight:bold;color:#22c55e;">📊 Quotation Comparison</a>
+                    </div>
+                </details>
+            </li>
+
+            <li><i class="fas fa-check-circle"></i> Approvals</li>
+            <li><i class="fas fa-shopping-cart"></i> Purchase Orders</li>
+            <li><i class="fas fa-receipt"></i> Invoices</li>
+            <li><i class="fas fa-chart-pie"></i> Reports</li>
+            <li><i class="fas fa-history"></i> Activity</li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1 class="title">Quotation Comparison</h1>
+        <h2 class="subtitle">RFQ: Office Furniture Procurement Q2 - Compare Vendor Quotations</h2>
+        <div class="rfq-summary">
+            Compare submitted quotations, pricing, delivery timelines and vendor ratings.
+        </div>
+
+        <h3 class="section-heading">Quotation Comparison Matrix</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Criteria</th>
+                    <th>Vendor A</th>
+                    <th style="background:#198754;">Vendor B (Lowest)</th>
+                    <th>Vendor C</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Grand Total</td>
+                    <td>₹210,000</td>
+                    <td style="background:#198754;">₹185,000</td>
+                    <td>₹225,000</td>
+                </tr>
+                <tr>
+                    <td>GST %</td>
+                    <td>18%</td>
+                    <td style="background:#198754;">18%</td>
+                    <td>18%</td>
+                </tr>
+                <tr>
+                    <td>Delivery Days</td>
+                    <td>14</td>
+                    <td style="background:#198754;">10</td>
+                    <td>18</td>
+                </tr>
+                <tr>
+                    <td>Vendor Rating</td>
+                    <td>4.2/5</td>
+                    <td style="background:#198754;">4.8/5 ⭐</td>
+                    <td>3.9/5</td>
+                </tr>
+                <tr>
+                    <td>Payment Terms</td>
+                    <td>45 Days</td>
+                    <td style="background:#198754;">30 Days</td>
+                    <td>60 Days</td>
+                </tr>
+                <tr>
+                    <td>Action</td>
+                    <td><button>Select</button></td>
+                    <td style="background:#198754;"><button>Select & Approve</button></td>
+                    <td><button>Select</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="rfq-summary" style="margin-top:20px;color:#ffb3b3;">
+            Green highlighted vendor represents the best quotation based on price and rating.
+        </div>
+    </div>
+</div>
+</body>
+</html>

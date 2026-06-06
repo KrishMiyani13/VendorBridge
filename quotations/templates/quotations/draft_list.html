@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Draft Quotations</title>
+</head>
+    <link rel="stylesheet" href="{% static 'quotation/css/quotation.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<div class="navbar">🚀 VendorBridge Procurement Suite</div>
+
+<div class="wrapper">
+
+    <div class="sidebar">
+        <ul>
+            <li><i class="fas fa-chart-line"></i> Dashboard</li>
+            <li><i class="fas fa-users"></i> Vendors</li>
+            <li><i class="fas fa-file-signature"></i> RFQ's</li>
+            <li>
+                <details open>
+                    <summary class="active">
+                        <span><i class="fas fa-file-invoice-dollar"></i> Quotations</span>
+                        <span>▼</span>
+                    </summary>
+                    <div class="submenu">
+                        <a href="/quotations/">📄 Submit Quotation</a>
+                        <a href="/quotations/drafts/">📝 Draft Quotations</a>
+                        <a href="/quotations/compare/">📊 Quotation Comparison</a>
+                    </div>
+                </details>
+            </li>
+            <li><i class="fas fa-check-circle"></i> Approvals</li>
+            <li><i class="fas fa-shopping-cart"></i> Purchase Orders</li>
+            <li><i class="fas fa-receipt"></i> Invoices</li>
+            <li><i class="fas fa-chart-pie"></i> Reports</li>
+            <li><i class="fas fa-history"></i> Activity</li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1 class="page-title">Draft Quotations</h1>
+        <p class="page-subtitle">Manage saved quotation drafts before submission.</p>
+
+        <div class="card">
+            <h3>Draft Management</h3>
+            <input type="text" id="draftSearch" placeholder="Search by Vendor or RFQ...">
+        </div>
+
+        <div class="card">
+            <table>
+                <tr>
+                    <th>Vendor</th>
+                    <th>RFQ</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% for draft in drafts %}
+                <tr>
+                    <td>{{ draft.vendor_name }}</td>
+                    <td>{{ draft.rfq_title }}</td>
+                    <td><span class="status-badge">Draft</span></td>
+                    <td>₹{{ draft.grand_total }}</td>
+                    <td>{{ draft.created_at }}</td>
+                    <td>
+                        <a href="/quotations/{{ draft.id }}/" class="btn">View</a>
+                        <a href="/quotations/{{ draft.id }}/" class="btn">Edit</a>
+                        <a href="/quotations/draft/{{ draft.id }}/submit/" class="btn">Submit</a>
+                        <a href="/quotations/draft/{{ draft.id }}/delete/" class="btn" onclick="return confirm('Delete this draft?')">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No draft quotations available.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.getElementById('draftSearch').addEventListener('keyup', function() {
+    const value = this.value.toLowerCase();
+    const rows = document.querySelectorAll('table tr');
+
+    rows.forEach((row, index) => {
+        if(index === 0) return;
+
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(value) ? '' : 'none';
+    });
+});
+</script>
+
+</body>
+</html>

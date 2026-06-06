@@ -1,0 +1,108 @@
+
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quotation Comparison</title>
+    <link rel="stylesheet" href="{% static 'quotation/css/quotation.css' %}">
+</head>
+<body>
+
+<div class="navbar">🚀 VendorBridge Procurement Suite</div>
+
+<div class="wrapper">
+
+    <div class="sidebar">
+        <ul>
+            <li>Dashboard</li>
+            <li>Vendors</li>
+            <li>RFQ's</li>
+            <li>
+                <details open>
+                    <summary class="active">Quotations <span>▼</span></summary>
+                    <div class="submenu">
+                        <a href="/quotations/">📄 Submit Quotation</a>
+                        <a href="/quotations/drafts/">📝 Draft Quotations</a>
+                        <a href="/quotations/compare/">📊 Quotation Comparison</a>
+                    </div>
+                </details>
+            </li>
+            <li>Approvals</li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1 class="page-title">Quotation Comparison</h1>
+        <p class="page-subtitle">Compare all submitted vendor quotations.</p>
+
+        <div class="card">
+            <h3>Select RFQ</h3>
+            <p>Choose an RFQ category to compare vendor quotations.</p>
+
+            <select id="rfqFilter">
+                <option value="all">All RFQs</option>
+                <option value="Furniture">Furniture</option>
+                <option value="IT Equipment">IT Equipment</option>
+                <option value="Office Supplies">Office Supplies</option>
+                <option value="Electrical">Electrical</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <table id="comparisonTable">
+                <tr>
+                    <th>Vendor</th>
+                    <th>RFQ</th>
+                    <th>Grand Total</th>
+                    <th>GST %</th>
+                    <th>Delivery Days</th>
+                    <th>Vendor Rating</th>
+                    <th>Payment Terms</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for quotation in quotations %}
+                <tr data-rfq="{{ quotation.rfq_title }}">
+                    <td>{{ quotation.vendor_name }}</td>
+                    <td>{{ quotation.rfq_title }}</td>
+                    <td>₹{{ quotation.grand_total }}</td>
+                    <td>{{ quotation.gst_percentage }}%</td>
+                    <td>{{ quotation.delivery_days }}</td>
+                    <td>{{ quotation.vendor_rating }}</td>
+                    <td>{{ quotation.payment_terms }}</td>
+                    <td>{{ quotation.status }}</td>
+                    <td>
+                        <a href="/quotations/{{ quotation.id }}/">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">No submitted quotations available.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+<script>
+document.getElementById('rfqFilter').addEventListener('change', function(){
+    const selected = this.value;
+    const rows = document.querySelectorAll('#comparisonTable tr[data-rfq]');
+
+    rows.forEach(row => {
+        const rfq = row.getAttribute('data-rfq');
+
+        if(selected === 'all' || rfq === selected){
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+</html>
