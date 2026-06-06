@@ -2,7 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
+from .models import UserProfile
+
 import re
+
+
+# ---------------- LOGIN ----------------
 
 def login_view(request):
 
@@ -21,11 +26,25 @@ def login_view(request):
         )
 
         if user:
+
             login(request, user)
-            messages.success(request, "Login Successful!")
+
+            # Remember Me
+            if request.POST.get('remember_me'):
+                request.session.set_expiry(1209600)  # 14 Days
+
+            else:
+                request.session.set_expiry(0)
+
+            messages.success(
+                request,
+                "Login Successful!"
+            )
+
             return redirect('dashboard')
 
         else:
+
             messages.error(
                 request,
                 "Invalid Username or Password"
@@ -37,7 +56,7 @@ def login_view(request):
     )
 
 
-
+# ---------------- SIGNUP ----------------
 
 def signup_view(request):
 
@@ -56,7 +75,9 @@ def signup_view(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-        # Validation
+        photo = request.FILES.get('photo')
+
+        # Username Validation
 
         if len(username) < 4:
 
@@ -67,7 +88,9 @@ def signup_view(request):
 
             return redirect('signup')
 
-        if User.objects.filter(username=username).exists():
+        if User.objects.filter(
+            username=username
+        ).exists():
 
             messages.error(
                 request,
@@ -76,18 +99,25 @@ def signup_view(request):
 
             return redirect('signup')
 
+        # Email Validation
+
         email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
 
-        if not re.match(email_pattern, email):
+        if not re.match(
+            email_pattern,
+            email
+        ):
 
             messages.error(
                 request,
-                "Invalid email address"
+                "Invalid Email Address"
             )
 
             return redirect('signup')
 
-        if User.objects.filter(email=email).exists():
+        if User.objects.filter(
+            email=email
+        ).exists():
 
             messages.error(
                 request,
@@ -96,11 +126,13 @@ def signup_view(request):
 
             return redirect('signup')
 
+        # Mobile Validation
+
         if not phone.isdigit():
 
             messages.error(
                 request,
-                "Phone number must contain only digits"
+                "Phone number must contain digits only"
             )
 
             return redirect('signup')
@@ -113,6 +145,8 @@ def signup_view(request):
             )
 
             return redirect('signup')
+
+        # Password Validation
 
         if len(password) < 8:
 
@@ -132,12 +166,24 @@ def signup_view(request):
 
             return redirect('signup')
 
-        User.objects.create_user(
+        # Create User
+
+        user = User.objects.create_user(
             username=username,
             email=email,
             password=password,
             first_name=first_name,
             last_name=last_name
+        )
+
+        # Create Profile
+
+        UserProfile.objects.create(
+            user=user,
+            phone=phone,
+            role=role,
+            country=country,
+            photo=photo
         )
 
         messages.success(
@@ -152,16 +198,124 @@ def signup_view(request):
         'accounts/signup.html'
     )
 
+
+# ---------------- DASHBOARD ----------------
+
 def dashboard_view(request):
 
     if not request.user.is_authenticated:
         return redirect('login')
 
-    return render(
-        request,
-        'accounts/dashboard.html'
+    profile = UserProfile.objects.get(
+        user=request.user
     )
 
+    return render(
+        request,
+        'accounts/dashboard.html',
+        {
+            'profile': profile,
+            'role': profile.role
+        }
+    )
+
+
+# ---------------- FORGOT PASSWORD ----------------
+
+def forgot_password_view(request):
+
+    if request.method == "POST":
+
+        email = request.POST.get("email")
+
+        try:
+
+            user = User.objects.get(
+                email=email
+            )
+
+            messages.success(
+                request,
+                f"Account Found: {user.username}"
+            )
+
+            return redirect('reset_password')
+
+        except User.DoesNotExist:
+
+            messages.error(
+                request,
+                "Email Not Registered"
+            )
+
+    return render(
+        request,
+        'accounts/forgot_password.html'
+    )
+
+
+# ---------------- RESET PASSWORD ----------------
+
+def reset_password_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        new_password = request.POST.get(
+            "new_password"
+        )
+
+        confirm_password = request.POST.get(
+            "confirm_password"
+        )
+
+        if new_password != confirm_password:
+
+            messages.error(
+                request,
+                "Passwords Do Not Match"
+            )
+
+            return redirect(
+                'reset_password'
+            )
+
+        try:
+
+            user = User.objects.get(
+                username=username
+            )
+
+            user.set_password(
+                new_password
+            )
+
+            user.save()
+
+            messages.success(
+                request,
+                "Password Updated Successfully"
+            )
+
+            return redirect('login')
+
+        except User.DoesNotExist:
+
+            messages.error(
+                request,
+                "User Not Found"
+            )
+
+    return render(
+        request,
+        'accounts/reset_password.html'
+    )
+
+
+# ---------------- LOGOUT ----------------
 
 def logout_view(request):
 
