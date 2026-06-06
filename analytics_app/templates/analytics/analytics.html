@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Analytics Dashboard</h2>
+
+<div>
+    <h3>Total Vendors: {{ vendors_count }}</h3>
+    <h3>Total RFQs: {{ rfq_count }}</h3>
+    <h3>Total Purchase Orders: {{ po_count }}</h3>
+    <h3>Total Invoices: {{ invoice_count }}</h3>
+</div>
+
+{% endblock %}

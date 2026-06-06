@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{ invoice.invoice_number }}</title>
+
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .invoice-title {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        .details {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .details td {
+            padding: 5px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .total-section {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: gray;
+            font-size: 11px;
+        }
+
+        .signature {
+            margin-top: 60px;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="company-name">VendorBridge</div>
+        <div>Procurement Management System</div>
+        <div class="invoice-title">INVOICE</div>
+    </div>
+
+    <table class="details">
+        <tr>
+            <td>
+                <strong>Invoice Number:</strong><br>
+                {{ invoice.invoice_number }}
+            </td>
+
+            <td>
+                <strong>Invoice Date:</strong><br>
+                {{ invoice.created_at|date:"d M Y" }}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>Vendor:</strong><br>
+                {{ invoice.purchase_order.vendor.name }}
+            </td>
+
+            <td>
+                <strong>PO Number:</strong><br>
+                {{ invoice.purchase_order.po_number }}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>Due Date:</strong><br>
+                {{ invoice.due_date }}
+            </td>
+
+            <td>
+                <strong>Status:</strong><br>
+                {{ invoice.status }}
+            </td>
+        </tr>
+    </table>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Purchase Order</th>
+                <th>Amount (₹)</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>Procurement Order</td>
+                <td>{{ invoice.purchase_order.po_number }}</td>
+                <td>{{ invoice.total_amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <h3>Total Amount: ₹ {{ invoice.total_amount }}</h3>
+    </div>
+
+    <div class="signature">
+        <p>Authorized Signature</p>
+        <br><br>
+        ____________________
+    </div>
+
+    <div class="footer">
+        <p>Thank you for doing business with VendorBridge.</p>
+        <p>Generated Automatically by VendorBridge ERP</p>
+    </div>
+
+</body>
+</html>
