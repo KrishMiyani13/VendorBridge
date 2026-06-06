@@ -1,37 +1,79 @@
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VendorBridge Analytics Dashboard</title>
 
-<div style="width: 700px; height: 400px;">
-    <canvas id="myChart"></canvas>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-const ctx = document.getElementById('myChart').getContext('2d');
-
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: [
-            'Vendors',
-            'PO',
-            'Invoices'
-        ],
-        datasets: [{
-            label: 'VendorBridge Analytics',
-            data: [
-                {{ vendors|default:0 }},
-                {{ purchase_orders|default:0 }},
-                {{ invoices|default:0 }}
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f4f6f9;
         }
-    }
-});
-</script>
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            width: 80%;
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>VendorBridge Analytics Dashboard</h1>
+
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('myChart');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Vendors',
+                    'Purchase Orders',
+                    'Invoices'
+                ],
+                datasets: [{
+                    label: 'VendorBridge Analytics',
+                    data: [
+                        Number("{{ vendors|default:'0' }}"),
+                        Number("{{ purchase_orders|default:'0' }}"),
+                        Number("{{ invoices|default:'0' }}")
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
