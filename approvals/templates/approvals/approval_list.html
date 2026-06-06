@@ -1,66 +1,133 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Approval List</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 40px;
-        }
+{% extends 'base.html' %}
+{% load static %}
 
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
+{% block title %}Approvals — VendorBridge{% endblock %}
 
-        .header {
-            background: #2563eb;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: white;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .empty {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-
-    <div class="header">
-        <h1>Approval Workflow</h1>
-        <p>VendorBridge Procurement System</p>
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Approval Workflow</h2>
+        <p class="text-muted mb-0">Track and manage procurement approval chains and vendor reviews.</p>
     </div>
-
-    {% for approval in approvals %}
-        <div class="card">
-            <strong>{{ approval }}</strong>
-        </div>
-    {% empty %}
-        <div class="empty">
-            <h3>No approvals found</h3>
-            <p>Create an approval record from Django Admin.</p>
-        </div>
-    {% endfor %}
-
 </div>
 
-</body>
-</html>
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+                    <i class="bi bi-clock-history text-warning fs-4"></i>
+                </div>
+                <div>
+                    <div class="fs-4 fw-bold">
+                        {% if approvals %}
+                            {{ approvals.count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="text-muted small">Total Requests</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="bg-success bg-opacity-10 rounded-3 p-3">
+                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                </div>
+                <div>
+                    <div class="fs-4 fw-bold">
+                        {% if approvals %}
+                            {{ approvals.count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="text-muted small">Active Chains</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                    <i class="bi bi-shield-check text-primary fs-4"></i>
+                </div>
+                <div>
+                    <div class="fs-4 fw-bold">100%</div>
+                    <div class="text-muted small">Process Compliance</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approvals Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        {% if approvals %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-uppercase" style="font-size: 0.75rem;">
+                    <tr>
+                        <th class="ps-4">RFQ Title</th>
+                        <th>Level</th>
+                        <th>Assigned Approver</th>
+                        <th>Created Date</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for approval in approvals %}
+                    <tr>
+                        <td class="ps-4">
+                            <span class="fw-semibold text-dark">{{ approval.rfq_title }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-semibold">{{ approval.level }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%;">
+                                    {{ approval.approver_name|first|upper }}
+                                </div>
+                                <span class="fw-medium">{{ approval.approver_name }}</span>
+                            </div>
+                        </td>
+                        <td class="text-muted small">
+                            {{ approval.created_at|date:"M d, Y H:i" }}
+                        </td>
+                        <td>
+                            {% if approval.status == 'Approved' %}
+                                <span class="badge bg-success-subtle text-success">Approved</span>
+                            {% elif approval.status == 'Rejected' %}
+                                <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-warning-subtle text-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'approvals:approval_details' approval.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-check me-1"></i> Review & Action
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-patch-check text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3 mb-0">No approval requests found.</p>
+            <p class="text-muted small">Add approval workflows through the admin panel or let system triggers initiate them.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

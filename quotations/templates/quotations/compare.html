@@ -1,98 +1,114 @@
-
-
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Quotation Comparison</title>
-    <link rel="stylesheet" href="{% static 'quotation/css/quotation.css' %}">
-</head>
-<body>
 
-<div class="navbar">🚀 VendorBridge Procurement Suite</div>
+{% block title %}Quotation Comparison — VendorBridge{% endblock %}
 
-<div class="wrapper">
-
-    <div class="sidebar">
-        <ul>
-            <li>Dashboard</li>
-            <li>Vendors</li>
-            <li>RFQ's</li>
-            <li>
-                <details open>
-                    <summary class="active">Quotations <span>▼</span></summary>
-                    <div class="submenu">
-                        <a href="/quotations/">📄 Submit Quotation</a>
-                        <a href="/quotations/drafts/">📝 Draft Quotations</a>
-                        <a href="/quotations/compare/">📊 Quotation Comparison</a>
-                    </div>
-                </details>
-            </li>
-            <li>Approvals</li>
-        </ul>
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Quotation Comparison</h2>
+        <p class="text-muted mb-0">Compare and analyze all submitted vendor quotations side-by-side.</p>
     </div>
-
-    <div class="content">
-        <h1 class="page-title">Quotation Comparison</h1>
-        <p class="page-subtitle">Compare all submitted vendor quotations.</p>
-
-        <div class="card">
-            <h3>Select RFQ</h3>
-            <p>Choose an RFQ category to compare vendor quotations.</p>
-
-            <select id="rfqFilter">
-                <option value="all">All RFQs</option>
-                <option value="Furniture">Furniture</option>
-                <option value="IT Equipment">IT Equipment</option>
-                <option value="Office Supplies">Office Supplies</option>
-                <option value="Electrical">Electrical</option>
-            </select>
-        </div>
-
-        <div class="card">
-            <table id="comparisonTable">
-                <tr>
-                    <th>Vendor</th>
-                    <th>RFQ</th>
-                    <th>Grand Total</th>
-                    <th>GST %</th>
-                    <th>Delivery Days</th>
-                    <th>Vendor Rating</th>
-                    <th>Payment Terms</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-
-                {% for quotation in quotations %}
-                <tr data-rfq="{{ quotation.rfq_title }}">
-                    <td>{{ quotation.vendor_name }}</td>
-                    <td>{{ quotation.rfq_title }}</td>
-                    <td>₹{{ quotation.grand_total }}</td>
-                    <td>{{ quotation.gst_percentage }}%</td>
-                    <td>{{ quotation.delivery_days }}</td>
-                    <td>{{ quotation.vendor_rating }}</td>
-                    <td>{{ quotation.payment_terms }}</td>
-                    <td>{{ quotation.status }}</td>
-                    <td>
-                        <a href="/quotations/{{ quotation.id }}/">View</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="9">No submitted quotations available.</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-    </div>
-
+    <a href="{% url 'quotations:submit_quotation' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> New Quotation
+    </a>
 </div>
 
-</body>
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold" for="rfqFilter"><i class="bi bi-filter-left text-primary me-1"></i>Filter by RFQ Category</label>
+                <select id="rfqFilter" class="form-select">
+                    <option value="all">All RFQs</option>
+                    <option value="Office Furniture">Office Furniture</option>
+                    <option value="IT Equipment">IT Equipment</option>
+                    <option value="HR Department">HR Department</option>
+                    <option value="Marketing">Marketing</option>
+                </select>
+            </div>
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <small class="text-muted">Showing only <strong class="text-success">Submitted</strong> quotations.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quotation Matrix -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        {% if quotations %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="comparisonTable">
+                <thead class="table-light text-uppercase" style="font-size: 0.75rem;">
+                    <tr>
+                        <th class="ps-4">Vendor</th>
+                        <th>RFQ Title</th>
+                        <th>Grand Total</th>
+                        <th>GST %</th>
+                        <th>Delivery (Days)</th>
+                        <th>Rating</th>
+                        <th>Payment Terms</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quotation in quotations %}
+                    <tr data-rfq="{{ quotation.rfq_title }}">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-circle bg-success bg-opacity-10 text-success fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%;">
+                                    {{ quotation.vendor_name|first|upper }}
+                                </div>
+                                <span class="fw-semibold">{{ quotation.vendor_name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-semibold">{{ quotation.rfq_title }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹{{ quotation.grand_total }}</span>
+                        </td>
+                        <td class="text-muted">{{ quotation.gst_percentage }}%</td>
+                        <td>
+                            <span class="badge bg-light text-dark border"><i class="bi bi-clock me-1"></i>{{ quotation.delivery_days }} Days</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1 text-warning">
+                                <i class="bi bi-star-fill"></i>
+                                <span class="fw-semibold text-dark">{{ quotation.vendor_rating }}</span>
+                            </div>
+                        </td>
+                        <td>{{ quotation.payment_terms }}</td>
+                        <td>
+                            <span class="badge bg-success bg-opacity-10 text-success text-capitalize">{{ quotation.status }}</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'quotations:quotation_details' quotation.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i> View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-bar-chart text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3 mb-0">No submitted quotations found to compare.</p>
+            <a href="{% url 'quotations:submit_quotation' %}" class="btn btn-primary btn-sm mt-3">Submit a Quotation</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 <script>
 document.getElementById('rfqFilter').addEventListener('change', function(){
     const selected = this.value;
-    const rows = document.querySelectorAll('#comparisonTable tr[data-rfq]');
+    const rows = document.querySelectorAll('#comparisonTable tbody tr');
 
     rows.forEach(row => {
         const rfq = row.getAttribute('data-rfq');
@@ -105,4 +121,4 @@ document.getElementById('rfqFilter').addEventListener('change', function(){
     });
 });
 </script>
-</html>
+{% endblock %}

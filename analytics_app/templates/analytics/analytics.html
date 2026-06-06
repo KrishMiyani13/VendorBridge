@@ -11,7 +11,7 @@
 
 <!-- Metrics Quick Summary -->
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
+    <div class="col-sm-6 col-xl-2">
         <div class="card border-0 shadow-sm">
             <div class="card-body py-3 d-flex align-items-center gap-3">
                 <div class="avatar-circle bg-primary bg-opacity-10 text-primary" style="width: 40px; height: 40px; border-radius: 8px;">
@@ -24,7 +24,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-6 col-xl-2">
         <div class="card border-0 shadow-sm">
             <div class="card-body py-3 d-flex align-items-center gap-3">
                 <div class="avatar-circle bg-success bg-opacity-10 text-success" style="width: 40px; height: 40px; border-radius: 8px;">
@@ -37,7 +37,33 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-6 col-xl-2">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body py-3 d-flex align-items-center gap-3">
+                <div class="avatar-circle bg-info bg-opacity-10 text-info" style="width: 40px; height: 40px; border-radius: 8px;">
+                    <i class="bi bi-file-earmark-dollar-fill"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Quotations</div>
+                    <div class="fw-bold fs-5">{{ quotations_count|default:"0" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body py-3 d-flex align-items-center gap-3">
+                <div class="avatar-circle bg-secondary bg-opacity-10 text-secondary" style="width: 40px; height: 40px; border-radius: 8px;">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Approvals</div>
+                    <div class="fw-bold fs-5">{{ approvals_count|default:"0" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
         <div class="card border-0 shadow-sm">
             <div class="card-body py-3 d-flex align-items-center gap-3">
                 <div class="avatar-circle bg-warning bg-opacity-10 text-warning" style="width: 40px; height: 40px; border-radius: 8px;">
@@ -50,7 +76,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-6 col-xl-2">
         <div class="card border-0 shadow-sm">
             <div class="card-body py-3 d-flex align-items-center gap-3">
                 <div class="avatar-circle bg-danger bg-opacity-10 text-danger" style="width: 40px; height: 40px; border-radius: 8px;">
@@ -86,24 +112,30 @@
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Vendors', 'RFQs', 'Purchase Orders', 'Invoices'],
+                labels: ['Vendors', 'RFQs', 'Quotations', 'Approvals', 'Purchase Orders', 'Invoices'],
                 datasets: [{
                     label: 'Records Count',
                     data: [
                         parseInt("{{ vendors_count|default:'0' }}"),
                         parseInt("{{ rfq_count|default:'0' }}"),
+                        parseInt("{{ quotations_count|default:'0' }}"),
+                        parseInt("{{ approvals_count|default:'0' }}"),
                         parseInt("{{ po_count|default:'0' }}"),
                         parseInt("{{ invoice_count|default:'0' }}")
                     ],
                     backgroundColor: [
                         'rgba(79, 70, 229, 0.65)',
                         'rgba(16, 185, 129, 0.65)',
+                        'rgba(13, 202, 240, 0.65)',
+                        'rgba(108, 117, 125, 0.65)',
                         'rgba(245, 158, 11, 0.65)',
                         'rgba(239, 68, 68, 0.65)'
                     ],
                     borderColor: [
                         '#4f46e5',
                         '#10b981',
+                        '#0dcaf0',
+                        '#6c757d',
                         '#f59e0b',
                         '#ef4444'
                     ],

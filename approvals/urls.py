@@ -4,5 +4,6 @@ from . import views
 app_name = 'approvals'
 
 urlpatterns = [
-    # Will be implemented by Jemish Dholakiya
+    path('', views.approval_list, name='approval_list'),
+    path('<int:pk>/', views.approval_details, name='approval_details'),
 ]

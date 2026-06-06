@@ -1,69 +1,121 @@
-
-
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Quotation Details</title>
-    <link rel="stylesheet" href="{% static 'quotation/css/quotation.css' %}">
-</head>
-<body>
 
-<div class="navbar">🚀 VendorBridge Procurement Suite</div>
+{% block title %}Quotation Details — VendorBridge{% endblock %}
 
-<div class="wrapper">
-
-    <div class="sidebar">
-        <ul>
-            <li>Dashboard</li>
-            <li>Vendors</li>
-            <li>RFQ's</li>
-            <li>
-                <details open>
-                    <summary class="active">Quotations <span>▼</span></summary>
-                    <div class="submenu">
-                        <a href="/quotations/">📄 Submit Quotation</a>
-                        <a href="/quotations/drafts/">📝 Draft Quotations</a>
-                        <a href="/quotations/compare/">📊 Quotation Comparison</a>
-                    </div>
-                </details>
-            </li>
-            <li>Approvals</li>
-        </ul>
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Quotation Details</h2>
+        <p class="text-muted mb-0">Quotation No: <strong class="text-primary">{{ quotation.quotation_number }}</strong></p>
     </div>
-
-    <div class="content">
-        <h1 class="page-title">Quotation Details</h1>
-        <p class="page-subtitle">Review vendor quotation information.</p>
-
-        <div class="card">
-            <h3>Vendor Information</h3>
-            <p><strong>Vendor:</strong> {{ quotation.vendor_name }}</p>
-            <p><strong>RFQ:</strong> {{ quotation.rfq_title }}</p>
-            <p><strong>Status:</strong> {{ quotation.status }}</p>
-            <p><strong>Vendor Rating:</strong> {{ quotation.vendor_rating }}</p>
-        </div>
-
-        <div class="card">
-            <h3>Quotation Summary</h3>
-            <p><strong>Grand Total:</strong> ₹{{ quotation.grand_total }}</p>
-            <p><strong>GST:</strong> {{ quotation.gst_percentage }}%</p>
-            <p><strong>Delivery Days:</strong> {{ quotation.delivery_days }}</p>
-            <p><strong>Payment Terms:</strong> {{ quotation.payment_terms }}</p>
-        </div>
-
-        <div class="card">
-            <h3>Notes</h3>
-            <p>{{ quotation.notes }}</p>
-        </div>
-
-        <div class="card">
-            <a href="/quotations/compare/" class="btn">Approve</a>
-            <a href="/quotations/drafts/" class="btn">Reject</a>
-        </div>
-    </div>
-
+    <a href="{% url 'quotations:compare_quotations' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Comparison
+    </a>
 </div>
 
-</body>
-</html>
+<div class="row g-4">
+    <!-- Left Column: Details -->
+    <div class="col-lg-8">
+        <!-- Vendor Info Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4"><i class="bi bi-info-circle text-primary me-2"></i>Vendor & RFQ Info</h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted d-block small mb-1">VENDOR NAME</span>
+                            <span class="fw-bold fs-5 text-dark">{{ quotation.vendor_name }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted d-block small mb-1">RFQ TITLE / CATEGORY</span>
+                            <span class="fw-bold fs-5 text-dark">{{ quotation.rfq_title }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted d-block small mb-1">STATUS</span>
+                            {% if quotation.status == 'draft' %}
+                                <span class="badge bg-warning text-dark py-2 px-3 fs-6">Draft</span>
+                            {% elif quotation.status == 'submitted' %}
+                                <span class="badge bg-primary py-2 px-3 fs-6">Submitted</span>
+                            {% elif quotation.status == 'approved' %}
+                                <span class="badge bg-success py-2 px-3 fs-6">Approved</span>
+                            {% else %}
+                                <span class="badge bg-danger py-2 px-3 fs-6">Rejected</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted d-block small mb-1">VENDOR RATING</span>
+                            <div class="d-flex align-items-center gap-1 text-warning fs-5">
+                                <i class="bi bi-star-fill"></i>
+                                <span class="fw-bold text-dark">{{ quotation.vendor_rating }} / 5.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Card -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-3"><i class="bi bi-chat-left-text text-primary me-2"></i>Notes & Terms</h5>
+                <div class="p-3 bg-light rounded-3">
+                    <p class="mb-0 text-dark" style="white-space: pre-wrap;">{{ quotation.notes|default:"No notes or terms provided." }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Financial Summary -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4"><i class="bi bi-cash-stack text-primary me-2"></i>Financial & Delivery Summary</h5>
+
+                <div class="list-group list-group-flush mb-4">
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                        <span class="text-muted">GST Percentage:</span>
+                        <span class="fw-semibold">{{ quotation.gst_percentage }}%</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                        <span class="text-muted">Delivery Timeline:</span>
+                        <span class="badge bg-light text-dark border"><i class="bi bi-truck me-1"></i>{{ quotation.delivery_days }} Days</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                        <span class="text-muted">Payment Terms:</span>
+                        <span class="fw-semibold">{{ quotation.payment_terms }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-bottom-0">
+                        <span class="text-muted">Created On:</span>
+                        <span class="text-muted small fw-medium">{{ quotation.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-primary bg-opacity-10 rounded-3 mb-4 text-center">
+                    <span class="text-muted d-block small mb-1">GRAND TOTAL</span>
+                    <span class="fw-bold fs-3 text-primary">₹{{ quotation.grand_total }}</span>
+                </div>
+
+                <!-- If Draft, allow submission -->
+                {% if quotation.status == 'draft' %}
+                <div class="d-flex flex-column gap-2">
+                    <a href="{% url 'quotations:submit_draft' quotation.id %}" class="btn btn-success py-2 w-100">
+                        <i class="bi bi-send-fill me-1"></i> Submit Quotation
+                    </a>
+                    <a href="{% url 'quotations:delete_draft' quotation.id %}" class="btn btn-outline-danger py-2 w-100" onclick="return confirm('Delete this draft?')">
+                        <i class="bi bi-trash me-1"></i> Delete Draft
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -47,6 +47,16 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{% url 'quotations:submit_quotation' %}" class="sidebar-link {% if 'quotations' in request.resolver_match.namespaces or 'quotations' in request.path %}active{% endif %}">
+                    <i class="bi bi-file-earmark-dollar"></i> Quotations
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'approvals:approval_list' %}" class="sidebar-link {% if 'approvals' in request.resolver_match.namespaces or 'approvals' in request.path %}active{% endif %}">
+                    <i class="bi bi-patch-check"></i> Approvals
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="{% url 'procurement:po_list' %}" class="sidebar-link {% if 'procurement' in request.resolver_match.namespaces or 'procurement' in request.path %}active{% endif %}">
                     <i class="bi bi-cart-check"></i> Procurement
                 </a>

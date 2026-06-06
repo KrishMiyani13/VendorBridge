@@ -1,174 +1,241 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Submit Quotation</title>
-    <link rel="stylesheet" href="{% static 'quotation/css/quotation.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
 
-<div class="navbar">🚀 VendorBridge Procurement Suite</div>
+{% block title %}Submit Quotation — VendorBridge{% endblock %}
 
-<div class="wrapper">
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Submit Quotation</h2>
+        <p class="text-muted mb-0">Create, manage, and process vendor quotations professionally.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'quotations:draft_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-file-earmark-text me-1"></i> View Drafts
+        </a>
+        <a href="{% url 'quotations:compare_quotations' %}" class="btn btn-outline-primary">
+            <i class="bi bi-bar-chart-line me-1"></i> Compare Quotations
+        </a>
+    </div>
+</div>
 
-<div class="sidebar">
-<ul>
-<li><i class="fas fa-chart-line"></i> Dashboard</li>
-<li><i class="fas fa-users"></i> Vendors</li>
-<li><i class="fas fa-file-signature"></i> RFQ's</li>
-<li>
-    <details open>
-        <summary class="active">
-            <span><i class="fas fa-file-invoice-dollar"></i> Quotations</span>
-            <span>▼</span>
-        </summary>
-        <div class="submenu">
-            <a href="/quotations/">📄 Submit Quotation</a>
-            <a href="/quotations/drafts/">📝 Draft Quotations</a>
-            <a href="/quotations/compare/">📊 Quotation Comparison</a>
+<form method="POST" id="quotationForm">
+    {% csrf_token %}
+    <input type="hidden" id="statusField" name="status" value="submitted">
+    <input type="hidden" id="grandTotalField" name="grand_total" value="0">
+    <input type="hidden" name="vendor_name" value="Demo Vendor">
+    <input type="hidden" name="gst_percentage" id="gstHidden" value="18">
+    <input type="hidden" name="delivery_days" id="deliveryDaysHidden" value="7">
+    <input type="hidden" name="vendor_rating" value="4.5">
+    <input type="hidden" name="payment_terms" value="30 Days">
+
+    <div class="row g-4">
+        <!-- Left Column: Form Details -->
+        <div class="col-lg-8">
+            <!-- RFQ Selection -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3"><i class="bi bi-tag text-primary me-2"></i>RFQ Selection</h5>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select RFQ Department / Category</label>
+                        <select name="rfq_title" class="form-select">
+                            <option>Office Furniture</option>
+                            <option>IT Equipment</option>
+                            <option>HR Department</option>
+                            <option>Marketing</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title fw-bold mb-0"><i class="bi bi-list-task text-primary me-2"></i>Quotation Items</h5>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addRow()">
+                            <i class="bi bi-plus-lg me-1"></i> Add Item
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="quotationTable">
+                            <thead class="table-light text-uppercase" style="font-size: 0.75rem;">
+                                <tr>
+                                    <th style="min-width: 200px;">Item Description</th>
+                                    <th style="width: 100px;">Qty</th>
+                                    <th style="width: 130px;">Unit Price (₹)</th>
+                                    <th style="width: 130px;">Total (₹)</th>
+                                    <th style="width: 110px;">Delivery (Days)</th>
+                                    <th style="width: 80px;" class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="text" name="item_name" class="form-control form-control-sm" placeholder="e.g. Ergonomic Office Chair" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="quantity" class="form-control form-control-sm qty" min="1" oninput="calculateTotals()" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="unit_price" class="form-control form-control-sm price" min="0" step="0.01" oninput="calculateTotals()" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm total bg-light" readonly value="0">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="item_delivery_days" class="form-control form-control-sm row-delivery" min="1" oninput="updateDeliveryDays()" value="7" required>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-link text-danger p-0" onclick="deleteRow(this)">
+                                            <i class="bi bi-trash fs-5"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes & Extra Info -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3"><i class="bi bi-chat-left-text text-primary me-2"></i>Notes & Terms</h5>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Special Instructions / Payment Terms</label>
+                        <textarea class="form-control" name="notes" rows="4" placeholder="Enter payment terms, shipping conditions, warranty details, etc..."></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
-    </details>
-</li>
-<li><i class="fas fa-check-circle"></i> Approvals</li>
-<li><i class="fas fa-shopping-cart"></i> Purchase Orders</li>
-<li><i class="fas fa-receipt"></i> Invoices</li>
-<li><i class="fas fa-chart-pie"></i> Reports</li>
-<li><i class="fas fa-history"></i> Activity</li>
-</ul>
-</div>
 
-<form method="POST">
-{% csrf_token %}
-<div class="content">
+        <!-- Right Column: Summary & Actions -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4 position-sticky" style="top: 90px;">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4"><i class="bi bi-calculator text-primary me-2"></i>Quotation Summary</h5>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">GST Rate (%)</label>
+                        <input type="number" id="gstPercent" class="form-control" value="18" min="0" max="100" oninput="calculateTotals()">
+                    </div>
 
-<h1 class="page-title">Submit Quotations</h1>
-<p class="page-subtitle">Create, manage and compare vendor quotations professionally.</p>
+                    <div class="d-flex justify-content-between mb-2 text-muted">
+                        <span>Subtotal:</span>
+                        <span>₹<span id="subtotal">0.00</span></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 text-muted">
+                        <span>GST Amount:</span>
+                        <span>₹<span id="gstAmount">0.00</span></span>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between mb-4 align-items-center">
+                        <span class="fw-bold fs-5 text-dark">Grand Total:</span>
+                        <span class="fw-bold fs-4 text-primary">₹<span id="grandTotal">0.00</span></span>
+                    </div>
 
-<div class="card">
-<h3>RFQ Selection</h3>
-<label>Select RFQ Department</label>
-<select name="rfq_title">
-<option>Office Furniture</option>
-<option>IT Equipment</option>
-<option>HR Department</option>
-<option>Marketing</option>
-</select>
-</div>
-
-<div class="card">
-<h3>Vendor Quotation Details</h3>
-<p>Add products, pricing and delivery information below.</p>
-
-<button type="button" class="btn" onclick="addRow()">+ Add Item</button>
-
-<div class="table-container">
-<table id="quotationTable">
-<tr>
-<th>Item</th>
-<th>Qty</th>
-<th>Unit Price</th>
-<th>Total</th>
-<th>Delivery Days</th>
-<th>Action</th>
-</tr>
-<tr>
-<td><input type="text" name="item_name" placeholder="Chair"></td>
-<td><input type="number" name="quantity" class="qty" oninput="calculateTotals()"></td>
-<td><input type="number" name="unit_price" class="price" oninput="calculateTotals()"></td>
-<td><input type="number" class="total" readonly></td>
-<td><input type="number" name="delivery_days"></td>
-<td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>
-</tr>
-</table>
-</div>
-</div>
-
-<div class="row">
-<div>
-<label>GST %</label>
-<input type="number" id="gstPercent" value="18" oninput="calculateTotals()">
-
-<label>Notes / Terms</label>
-<textarea rows="5" name="notes"></textarea>
-
-<br><br>
-<button class="btn" type="submit" onclick="setStatus('submitted')">Save</button>
-<button class="btn" type="submit" onclick="setStatus('draft')">Save Draft</button>
-<input type="hidden" id="statusField" name="status" value="submitted">
-<input type="hidden" id="grandTotalField" name="grand_total" value="0">
-<input type="hidden" name="vendor_name" value="Demo Vendor">
-<input type="hidden" name="gst_percentage" id="gstHidden" value="18">
-<input type="hidden" name="delivery_days" value="7">
-<input type="hidden" name="vendor_rating" value="4.5">
-<input type="hidden" name="payment_terms" value="30 Days">
-<p id="statusMessage"><strong>Status:</strong> Submitted</p>
-</div>
-
-<div class="card summary-card">
-<h3>Quotation Summary</h3>
-<p>Subtotal: ₹<span id="subtotal">0</span></p>
-<p>GST: ₹<span id="gstAmount">0</span></p>
-<hr>
-<h2>Grand Total: ₹<span id="grandTotal">0</span></h2>
-</div>
-</div>
-
- </div>
-
-</div>
-
+                    <div class="d-flex flex-column gap-2">
+                        <button type="submit" class="btn btn-primary w-100 py-2" onclick="setStatus('submitted')">
+                            <i class="bi bi-send-fill me-1"></i> Submit Quotation
+                        </button>
+                        <button type="submit" class="btn btn-outline-secondary w-100 py-2" onclick="setStatus('draft')">
+                            <i class="bi bi-save me-1"></i> Save as Draft
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted" id="statusMessage">Status: <strong>Submitted</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
+
 <script>
 function addRow(){
-    const table=document.getElementById('quotationTable');
-    const row=table.insertRow(-1);
-    row.innerHTML=`
-    <td><input type="text" name="item_name" placeholder="Item"></td>
-    <td><input type="number" name="quantity" class="qty" oninput="calculateTotals()"></td>
-    <td><input type="number" name="unit_price" class="price" oninput="calculateTotals()"></td>
-    <td><input type="number" class="total" readonly></td>
-    <td><input type="number" name="delivery_days"></td>
-    <td><button type="button" class="btn" onclick="deleteRow(this)">Delete</button></td>`;
+    const table = document.getElementById('quotationTable').getElementsByTagName('tbody')[0];
+    const row = table.insertRow(-1);
+    row.innerHTML = `
+        <td>
+            <input type="text" name="item_name" class="form-control form-control-sm" placeholder="Item Description" required>
+        </td>
+        <td>
+            <input type="number" name="quantity" class="form-control form-control-sm qty" min="1" oninput="calculateTotals()" required>
+        </td>
+        <td>
+            <input type="number" name="unit_price" class="form-control form-control-sm price" min="0" step="0.01" oninput="calculateTotals()" required>
+        </td>
+        <td>
+            <input type="number" class="form-control form-control-sm total bg-light" readonly value="0">
+        </td>
+        <td>
+            <input type="number" name="item_delivery_days" class="form-control form-control-sm row-delivery" min="1" oninput="updateDeliveryDays()" value="7" required>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-link text-danger p-0" onclick="deleteRow(this)">
+                <i class="bi bi-trash fs-5"></i>
+            </button>
+        </td>`;
 }
 
 function calculateTotals(){
-    let subtotal=0;
+    let subtotal = 0;
 
-    document.querySelectorAll('#quotationTable tr').forEach((row,index)=>{
-        if(index===0) return;
+    document.querySelectorAll('#quotationTable tbody tr').forEach((row) => {
+        const qty = row.querySelector('.qty');
+        const price = row.querySelector('.price');
+        const total = row.querySelector('.total');
 
-        const qty=row.querySelector('.qty');
-        const price=row.querySelector('.price');
-        const total=row.querySelector('.total');
-
-        if(qty && price && total){
-            const rowTotal=(Number(qty.value)||0)*(Number(price.value)||0);
-            total.value=rowTotal;
-            subtotal+=rowTotal;
+        if (qty && price && total) {
+            const rowTotal = (Number(qty.value) || 0) * (Number(price.value) || 0);
+            total.value = rowTotal.toFixed(2);
+            subtotal += rowTotal;
         }
     });
 
-    const gstPercent=Number(document.getElementById('gstPercent').value)||0;
-    const gstAmount=subtotal*gstPercent/100;
-    const grandTotal=subtotal+gstAmount;
+    const gstPercent = Number(document.getElementById('gstPercent').value) || 0;
+    const gstAmount = subtotal * gstPercent / 100;
+    const grandTotal = subtotal + gstAmount;
 
-    document.getElementById('subtotal').innerText=subtotal.toFixed(2);
-    document.getElementById('gstAmount').innerText=gstAmount.toFixed(2);
-    document.getElementById('grandTotal').innerText=grandTotal.toFixed(2);
+    document.getElementById('subtotal').innerText = subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('gstAmount').innerText = gstAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('grandTotal').innerText = grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('grandTotalField').value = grandTotal.toFixed(2);
     document.getElementById('gstHidden').value = gstPercent;
+    
+    updateDeliveryDays();
+}
+
+function updateDeliveryDays() {
+    // Collect the max delivery days from rows and update the hidden delivery_days field
+    let maxDelivery = 1;
+    document.querySelectorAll('.row-delivery').forEach(input => {
+        const val = parseInt(input.value) || 0;
+        if (val > maxDelivery) {
+            maxDelivery = val;
+        }
+    });
+    document.getElementById('deliveryDaysHidden').value = maxDelivery;
 }
 
 function deleteRow(button){
-    button.closest('tr').remove();
-    calculateTotals();
+    const row = button.closest('tr');
+    const tableBody = row.parentNode;
+    if (tableBody.rows.length > 1) {
+        row.remove();
+        calculateTotals();
+    } else {
+        alert("At least one item is required in the quotation.");
+    }
 }
 
 function setStatus(status){
     document.getElementById('statusField').value = status;
-    document.getElementById('statusMessage').innerText = 'Current Status: ' + status;
+    const badgeClass = status === 'draft' ? 'text-warning' : 'text-success';
+    document.getElementById('statusMessage').innerHTML = `Status: <strong class="${badgeClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
 }
 </script>
-</body>
-</html>
+{% endblock %}

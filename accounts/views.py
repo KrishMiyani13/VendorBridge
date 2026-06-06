@@ -6,6 +6,8 @@ from .models import UserProfile
 from vendors.models import Vendor
 from rfq.models import RFQ
 from procurement.models import PurchaseOrder, Invoice
+from quotations.models import Quotation
+from approvals.models import Approval
 
 import re
 
@@ -220,6 +222,8 @@ def dashboard_view(request):
         'rfq_count': RFQ.objects.count(),
         'po_count': PurchaseOrder.objects.count(),
         'invoice_count': Invoice.objects.count(),
+        'quotations_count': Quotation.objects.count(),
+        'approvals_count': Approval.objects.count(),
     }
 
     return render(
