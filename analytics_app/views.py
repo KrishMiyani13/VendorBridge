@@ -1,14 +1,20 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from vendors.models import Vendor
+from rfq.models import RFQ
+from procurement.models import PurchaseOrder, Invoice
 
+@login_required
 def analytics(request):
     context = {
-        'vendors': 10,
-        'purchase_orders': 15,
-        'invoices': 20,
+        'vendors_count': Vendor.objects.count(),
+        'rfq_count': RFQ.objects.count(),
+        'po_count': PurchaseOrder.objects.count(),
+        'invoice_count': Invoice.objects.count(),
     }
 
     return render(
         request,
-        'analytics/dashboard_charts.html',
+        'analytics/analytics.html',
         context
     )

@@ -1,22 +1,76 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Invoices — VendorBridge{% endblock %}
 
 {% block content %}
-<h2>Invoices</h2>
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-1">Invoices</h2>
+    <p class="text-muted mb-0">Generate and track supplier invoices and payments</p>
+  </div>
+  <a href="{% url 'procurement:generate_invoice' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i> Generate Invoice
+  </a>
+</div>
 
-<table border="1">
-<tr>
-    <th>Invoice No</th>
-    <th>Amount</th>
-    <th>Status</th>
-</tr>
-
-{% for invoice in invoices %}
-<tr>
-    <td>{{ invoice.invoice_number }}</td>
-    <td>{{ invoice.total_amount }}</td>
-    <td>{{ invoice.status }}</td>
-</tr>
-{% endfor %}
-</table>
-
+<!-- Invoice Table Card -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    {% if invoices %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Invoice No</th>
+            <th>Purchase Order</th>
+            <th>Amount</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th class="text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invoice in invoices %}
+          <tr>
+            <td class="ps-4">
+              <span class="font-monospace fw-semibold text-primary">{{ invoice.invoice_number }}</span>
+            </td>
+            <td>
+              <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ invoice.purchase_order.po_number }}</span>
+            </td>
+            <td>
+              <span class="fw-semibold">₹{{ invoice.total_amount }}</span>
+            </td>
+            <td>
+              <span class="text-muted small">{{ invoice.due_date|date:"d M Y" }}</span>
+            </td>
+            <td>
+              {% if invoice.status|lower == 'paid' or invoice.status|lower == 'completed' %}
+                <span class="badge bg-success-subtle text-success">{{ invoice.status }}</span>
+              {% elif invoice.status|lower == 'unpaid' or invoice.status|lower == 'pending' %}
+                <span class="badge bg-warning-subtle text-warning">{{ invoice.status }}</span>
+              {% else %}
+                <span class="badge bg-danger-subtle text-danger">{{ invoice.status }}</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-4">
+              <a href="{% url 'procurement:generate_invoice_pdf' invoice.id %}" class="btn btn-outline-danger btn-sm" title="Download PDF">
+                <i class="bi bi-file-pdf me-1"></i> Download PDF
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+      <p class="text-muted mt-3 mb-0">No invoices found.</p>
+      <a href="{% url 'procurement:generate_invoice' %}" class="btn btn-primary mt-3">Generate Your First Invoice</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

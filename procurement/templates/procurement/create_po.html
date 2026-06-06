@@ -1,12 +1,41 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Purchase Order — VendorBridge{% endblock %}
 
 {% block content %}
-<h2>Create Purchase Order</h2>
-
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Create PO</button>
-</form>
-
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                <h4 class="fw-bold m-0">Create Purchase Order</h4>
+                <p class="text-muted small mb-0">Issue a new PO to a vendor based on quotation</p>
+            </div>
+            
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold small text-muted">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text small">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4">Create PO</button>
+                        <a href="{% url 'procurement:po_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

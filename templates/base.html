@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}VendorBridge ERP{% endblock %}</title>
+
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="{% if request.user.is_authenticated %}app-container{% endif %}">
+    {% if request.user.is_authenticated %}
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-cpu-fill text-primary"></i>
+            <a href="{% url 'dashboard' %}">VendorBridge ERP</a>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{% url 'dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'vendors:vendor_list' %}" class="sidebar-link {% if 'vendors' in request.resolver_match.namespaces or 'vendors' in request.path %}active{% endif %}">
+                    <i class="bi bi-people"></i> Vendors
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'rfq:rfq_list' %}" class="sidebar-link {% if 'rfq' in request.resolver_match.namespaces or 'rfq' in request.path %}active{% endif %}">
+                    <i class="bi bi-file-earmark-text"></i> RFQs
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'procurement:po_list' %}" class="sidebar-link {% if 'procurement' in request.resolver_match.namespaces or 'procurement' in request.path %}active{% endif %}">
+                    <i class="bi bi-cart-check"></i> Procurement
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'analytics_app:analytics' %}" class="sidebar-link {% if 'analytics' in request.resolver_match.url_name or 'analytics' in request.path %}active{% endif %}">
+                    <i class="bi bi-bar-chart-line"></i> Analytics
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="d-flex align-items-center gap-2">
+                <div class="avatar-circle bg-primary text-white fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                    {{ request.user.username|first|upper }}
+                </div>
+                <div class="text-truncate" style="max-width: 140px;">
+                    <div class="small fw-semibold text-white">{{ request.user.username }}</div>
+                    <div class="small text-muted" style="font-size: 0.75rem;">ERP User</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    {% endif %}
+
+    <!-- Main Wrapper -->
+    <div class="{% if request.user.is_authenticated %}main-wrapper{% endif %}">
+        {% if request.user.is_authenticated %}
+        <header class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small">Welcome, <strong>{{ request.user.get_full_name|default:request.user.username }}</strong></span>
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </header>
+        {% endif %}
+
+        <!-- Main Content Area -->
+        <main class="{% if request.user.is_authenticated %}content-container{% endif %}">
+            <!-- Alert message routing -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'primary' }}{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap 5 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

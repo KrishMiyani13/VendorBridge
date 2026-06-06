@@ -3,6 +3,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import UserProfile
+from vendors.models import Vendor
+from rfq.models import RFQ
+from procurement.models import PurchaseOrder, Invoice
 
 import re
 
@@ -210,13 +213,19 @@ def dashboard_view(request):
         user=request.user
     )
 
+    context = {
+        'profile': profile,
+        'role': profile.role,
+        'vendors_count': Vendor.objects.count(),
+        'rfq_count': RFQ.objects.count(),
+        'po_count': PurchaseOrder.objects.count(),
+        'invoice_count': Invoice.objects.count(),
+    }
+
     return render(
         request,
         'accounts/dashboard.html',
-        {
-            'profile': profile,
-            'role': profile.role
-        }
+        context
     )
 
 

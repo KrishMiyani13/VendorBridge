@@ -25,7 +25,7 @@ def create_po(request):
 
         if form.is_valid():
             form.save()
-            return redirect('po_list')
+            return redirect('procurement:po_list')
 
     else:
         form = PurchaseOrderForm()
@@ -57,7 +57,7 @@ def generate_invoice(request):
 
         if form.is_valid():
             form.save()
-            return redirect('invoice_list')
+            return redirect('procurement:invoice_list')
 
     else:
         form = InvoiceForm()

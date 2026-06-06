@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ vendor.name }} — VendorBridge{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4 d-flex justify-content-between align-items-start">
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'vendors:vendor_list' %}">Vendors</a></li>
+        <li class="breadcrumb-item active">{{ vendor.name }}</li>
+      </ol>
+    </nav>
+    <h2 class="fw-bold mb-1">{{ vendor.name }}</h2>
+    <p class="text-muted mb-0">{{ vendor.company_name }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'vendors:vendor_edit' vendor.pk %}" class="btn btn-outline-primary">
+      <i class="bi bi-pencil me-1"></i> Edit
+    </a>
+    <a href="{% url 'vendors:vendor_delete' vendor.pk %}" class="btn btn-outline-danger">
+      <i class="bi bi-trash me-1"></i> Delete
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left: Vendor Info -->
+  <div class="col-lg-8">
+
+    <!-- Profile Card -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-4 mb-4">
+          <div class="avatar-circle-lg bg-primary bg-opacity-10 text-primary fw-bold">
+            {{ vendor.name|first|upper }}
+          </div>
+          <div>
+            <h4 class="fw-bold mb-1">{{ vendor.name }}</h4>
+            <p class="text-muted mb-2">{{ vendor.company_name }}</p>
+            <div class="d-flex align-items-center gap-2">
+              {% if vendor.status == 'active' %}
+                <span class="badge bg-success-subtle text-success">Active</span>
+              {% elif vendor.status == 'inactive' %}
+                <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+              {% elif vendor.status == 'blacklisted' %}
+                <span class="badge bg-danger-subtle text-danger">Blacklisted</span>
+              {% else %}
+                <span class="badge bg-warning-subtle text-warning">Pending</span>
+              {% endif %}
+              {% if vendor.category %}
+                <span class="badge bg-info-subtle text-info">{{ vendor.category.name }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="ms-auto text-center">
+            <div class="display-6 fw-bold text-warning">{{ vendor.rating }}</div>
+            <div class="text-muted small">
+              <i class="bi bi-star-fill text-warning"></i> Rating
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-envelope text-primary mt-1"></i>
+              <div>
+                <div class="text-muted small">Email</div>
+                <a href="mailto:{{ vendor.email }}">{{ vendor.email }}</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-telephone text-primary mt-1"></i>
+              <div>
+                <div class="text-muted small">Phone</div>
+                <div>{{ vendor.phone }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-geo-alt text-primary mt-1"></i>
+              <div>
+                <div class="text-muted small">Address</div>
+                <div>{{ vendor.full_address }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-calendar text-primary mt-1"></i>
+              <div>
+                <div class="text-muted small">Registered On</div>
+                <div>{{ vendor.created_at|date:"d M Y" }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GST Details -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent border-bottom fw-semibold py-3">
+        <i class="bi bi-file-earmark-text me-2 text-primary"></i>GST & Tax Details
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="text-muted small mb-1">GST Number</div>
+            <div class="font-monospace fw-medium">{{ vendor.gst_number|default:"Not Provided" }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="text-muted small mb-1">PAN Number</div>
+            <div class="font-monospace fw-medium">{{ vendor.pan_number|default:"Not Provided" }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Person -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent border-bottom fw-semibold py-3">
+        <i class="bi bi-person me-2 text-primary"></i>Contact Person
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="text-muted small mb-1">Name</div>
+            <div class="fw-medium">{{ vendor.contact_person_name|default:"—" }}</div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-muted small mb-1">Email</div>
+            <div>{{ vendor.contact_person_email|default:"—" }}</div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-muted small mb-1">Phone</div>
+            <div>{{ vendor.contact_person_phone|default:"—" }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if vendor.notes %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent border-bottom fw-semibold py-3">
+        <i class="bi bi-sticky me-2 text-primary"></i>Notes
+      </div>
+      <div class="card-body">
+        <p class="mb-0 text-muted">{{ vendor.notes }}</p>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Right: Activity -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent border-bottom fw-semibold py-3">
+        <i class="bi bi-clock-history me-2 text-primary"></i>Recent RFQs
+      </div>
+      <div class="card-body p-0">
+        {% if rfqs %}
+          <ul class="list-group list-group-flush">
+            {% for assignment in rfqs %}
+              <li class="list-group-item border-0 py-3">
+                <div class="fw-medium">{{ assignment.rfq.title }}</div>
+                <div class="text-muted small">{{ assignment.assigned_at|date:"d M Y" }}</div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-center py-4 text-muted small">No RFQs assigned yet</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom fw-semibold py-3">
+        <i class="bi bi-receipt me-2 text-primary"></i>Recent Quotations
+      </div>
+      <div class="card-body p-0">
+        {% if quotations %}
+          <ul class="list-group list-group-flush">
+            {% for quotation in quotations %}
+              <li class="list-group-item border-0 py-3">
+                <div class="fw-medium">{{ quotation.rfq.title }}</div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted small">{{ quotation.submitted_at|date:"d M Y" }}</span>
+                  <span class="fw-semibold text-primary">₹{{ quotation.total_price }}</span>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-center py-4 text-muted small">No quotations submitted yet</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.avatar-circle-lg {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+</style>
+{% endblock %}

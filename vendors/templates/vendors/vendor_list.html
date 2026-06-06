@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vendors — VendorBridge{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-1">Vendor Management</h2>
+    <p class="text-muted mb-0">Manage your procurement vendor network</p>
+  </div>
+  <a href="{% url 'vendors:vendor_add' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i> Add Vendor
+  </a>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+          <i class="bi bi-people-fill text-primary fs-4"></i>
+        </div>
+        <div>
+          <div class="fs-4 fw-bold">{{ total_vendors }}</div>
+          <div class="text-muted small">Total Vendors</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="bg-success bg-opacity-10 rounded-3 p-3">
+          <i class="bi bi-check-circle-fill text-success fs-4"></i>
+        </div>
+        <div>
+          <div class="fs-4 fw-bold">{{ active_vendors }}</div>
+          <div class="text-muted small">Active Vendors</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+          <i class="bi bi-clock-fill text-warning fs-4"></i>
+        </div>
+        <div>
+          <div class="fs-4 fw-bold">{{ pending_vendors }}</div>
+          <div class="text-muted small">Pending Approval</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Search & Filters -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-5">
+        {{ form.search.label_tag }}
+        {{ form.search }}
+      </div>
+      <div class="col-md-3">
+        {{ form.category.label_tag }}
+        {{ form.category }}
+      </div>
+      <div class="col-md-2">
+        {{ form.status.label_tag }}
+        {{ form.status }}
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-search me-1"></i> Search
+        </button>
+        <a href="{% url 'vendors:vendor_list' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Vendor Table -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    {% if vendors %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Vendor</th>
+            <th>Category</th>
+            <th>Contact</th>
+            <th>GST Number</th>
+            <th>Rating</th>
+            <th>Status</th>
+            <th class="text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vendor in vendors %}
+          <tr>
+            <td class="ps-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="avatar-circle bg-primary bg-opacity-10 text-primary fw-bold">
+                  {{ vendor.name|first|upper }}
+                </div>
+                <div>
+                  <div class="fw-semibold">{{ vendor.name }}</div>
+                  <div class="text-muted small">{{ vendor.company_name }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              {% if vendor.category %}
+                <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ vendor.category.name }}</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="small">{{ vendor.email }}</div>
+              <div class="small text-muted">{{ vendor.phone }}</div>
+            </td>
+            <td>
+              <span class="font-monospace small">{{ vendor.gst_number|default:"—" }}</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-1">
+                <i class="bi bi-star-fill text-warning small"></i>
+                <span class="fw-semibold">{{ vendor.rating }}</span>
+              </div>
+            </td>
+            <td>
+              {% if vendor.status == 'active' %}
+                <span class="badge bg-success-subtle text-success">Active</span>
+              {% elif vendor.status == 'inactive' %}
+                <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+              {% elif vendor.status == 'blacklisted' %}
+                <span class="badge bg-danger-subtle text-danger">Blacklisted</span>
+              {% else %}
+                <span class="badge bg-warning-subtle text-warning">Pending</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-4">
+              <div class="btn-group btn-group-sm">
+                <a href="{% url 'vendors:vendor_details' vendor.pk %}" class="btn btn-outline-primary" title="View">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'vendors:vendor_edit' vendor.pk %}" class="btn btn-outline-secondary" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'vendors:vendor_delete' vendor.pk %}" class="btn btn-outline-danger" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+      <p class="text-muted mt-3 mb-0">No vendors found.</p>
+      <a href="{% url 'vendors:vendor_add' %}" class="btn btn-primary mt-3">Add Your First Vendor</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+</style>
+{% endblock %}

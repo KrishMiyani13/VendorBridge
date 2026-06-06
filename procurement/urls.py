@@ -1,14 +1,12 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from . import views
+
+app_name = 'procurement'
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    path('accounts/', include('accounts.urls')),
-    path('vendors/', include('vendors.urls')),
-    path('rfq/', include('rfq.urls')),
-    path('quotations/', include('quotations.urls')),
-    path('approvals/', include('approvals.urls')),
-    path('procurement/', include('procurement.urls')),
-    path('analytics/', include('analytics_app.urls')),
+    path('', views.po_list, name='po_list'),
+    path('create/', views.create_po, name='create_po'),
+    path('invoices/', views.invoice_list, name='invoice_list'),
+    path('invoices/create/', views.generate_invoice, name='generate_invoice'),
+    path('invoices/<int:invoice_id>/pdf/', views.generate_invoice_pdf, name='generate_invoice_pdf'),
 ]

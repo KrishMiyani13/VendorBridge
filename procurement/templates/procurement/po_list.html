@@ -1,24 +1,75 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Purchase Orders — VendorBridge{% endblock %}
 
 {% block content %}
-<h2>Purchase Orders</h2>
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-1">Purchase Orders</h2>
+    <p class="text-muted mb-0">Manage and track your organization's purchase orders</p>
+  </div>
+  <a href="{% url 'procurement:create_po' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i> Create PO
+  </a>
+</div>
 
-<table border="1">
-<tr>
-    <th>PO Number</th>
-    <th>Vendor</th>
-    <th>Amount</th>
-    <th>Status</th>
-</tr>
-
-{% for po in pos %}
-<tr>
-    <td>{{ po.po_number }}</td>
-    <td>{{ po.vendor }}</td>
-    <td>{{ po.amount }}</td>
-    <td>{{ po.status }}</td>
-</tr>
-{% endfor %}
-</table>
-
+<!-- PO Table Card -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    {% if pos %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">PO Number</th>
+            <th>Vendor</th>
+            <th>Quotation Ref</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Created Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for po in pos %}
+          <tr>
+            <td class="ps-4">
+              <span class="font-monospace fw-semibold text-primary">{{ po.po_number }}</span>
+            </td>
+            <td>
+              <div class="fw-medium">{{ po.vendor.name }}</div>
+              <div class="text-muted small">{{ po.vendor.company_name }}</div>
+            </td>
+            <td>
+              <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ po.quotation.quotation_number }}</span>
+            </td>
+            <td>
+              <span class="fw-semibold">₹{{ po.amount }}</span>
+            </td>
+            <td>
+              {% if po.status|lower == 'approved' or po.status|lower == 'completed' or po.status|lower == 'paid' %}
+                <span class="badge bg-success-subtle text-success">{{ po.status }}</span>
+              {% elif po.status|lower == 'pending' or po.status|lower == 'unpaid' %}
+                <span class="badge bg-warning-subtle text-warning">{{ po.status }}</span>
+              {% else %}
+                <span class="badge bg-primary-subtle text-primary">{{ po.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="text-muted small">{{ po.created_at|date:"d M Y" }}</div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="bi bi-cart-check text-muted" style="font-size: 3rem;"></i>
+      <p class="text-muted mt-3 mb-0">No purchase orders found.</p>
+      <a href="{% url 'procurement:create_po' %}" class="btn btn-primary mt-3">Create Your First PO</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}
